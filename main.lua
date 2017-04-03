@@ -2,10 +2,12 @@
 function love.load()
 	require("game")
 	require("player")
+	require("bullet")
 
 	zap = love.graphics.newImage("resources/images/zap.png")
 
 	player = game.newPlayer()
+	
 	drawables = { player }
 	updateables = { player }
 end
