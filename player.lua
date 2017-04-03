@@ -42,7 +42,9 @@ function game.newPlayer()
 	end
 
 	function Player:update(dt)
+		
 		self.firingTimer = self.firingTimer - dt * 1
+		
 		if self.firingTimer < 0 then
 			self.canFire = true
 		end

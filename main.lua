@@ -3,13 +3,15 @@ function love.load()
 	require("game")
 	require("player")
 	require("bullet")
+	require("enemies")
 
 	zap = love.graphics.newImage("resources/images/zap.png")
 
 	player = game.newPlayer()
+	enemies = game.newEnemies()
 	
-	drawables = { player }
-	updateables = { player }
+	drawables = { enemies, player }
+	updateables = { enemies, player }
 end
 
 function love.update(dt)
@@ -18,8 +20,8 @@ function love.update(dt)
 		love.event.push('quit')
 	end
 
-	for i, u in ipairs(updateables) do
-		u:update(dt)
+	for i, object in ipairs(updateables) do
+		object:update(dt)
 	end
 end
 

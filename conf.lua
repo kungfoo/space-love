@@ -1,4 +1,7 @@
 
+-- do not buffer stdout
+io.stdout:setvbuf("no")
+
 function love.conf(t)
 	t.title = "Can has animated player"
 	t.window.width = 480
