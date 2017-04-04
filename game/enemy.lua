@@ -1,7 +1,7 @@
 
 function game.newEnemy()
 	
-	Enemy = {
+	local Enemy = {
 		
 		x = math.random(10, love.graphics.getWidth() - 10),
 		y = 0,
@@ -11,7 +11,10 @@ function game.newEnemy()
 
 		health = math.random(30, 100),
 
-		speed = 150
+		speed = math.random(50, 100) + 50,
+
+		slow_down = 20,
+		speed_up = 20
 	}
 
 	function Enemy:draw()
@@ -21,13 +24,14 @@ function game.newEnemy()
 
 	function Enemy:color()
 		local hue = (self.health/100) * 360
-		local alpha = (self.health/100) * 255
+		local alpha = ((self.health/100) * 200) + 55
 
 		return game.colors.hsl(hue, self.health, 50, alpha)
 	end
 
 	function Enemy:update(dt)
 		self.y = self.y + self.speed * dt
+		self.speed = self.speed + self.speed_up * dt
 	end
 
 	function Enemy:is_offscreen()
@@ -36,8 +40,11 @@ function game.newEnemy()
 
 	function Enemy:hit()
 		self.health = self.health - 10
+		self.speed = self.speed - self.slow_down
 
-		game.sound.effects.hit:play()
+		game.sound.effects.hit_enemy:play({
+			pitch = 0.5*math.random() + 0.7
+		})
 	end
 
 	function Enemy:is_dead()

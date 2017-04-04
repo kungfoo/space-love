@@ -43,5 +43,10 @@ function game.newEnemies()
 		print(("kills: %d"):format(self.kills))
 	end
 
+	function Enemies:remove(i)
+		Enemies:increase_kill_count()
+		table.remove(self.enemies, i)
+	end
+
 	return Enemies
 end

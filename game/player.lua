@@ -3,7 +3,12 @@ function game.newPlayer()
 		-- initial position
 		x = 240,
 		y = 720,
+
+		radius = 10,
+
 		canFire = true,
+
+		max_health = 500,
 		health = 500,
 
 		-- other values
@@ -37,7 +42,9 @@ function game.newPlayer()
 		self.canFire = false
 		self.firingTimer = 0.2
 
-		game.sound.effects.laser:play({ pitch = 0.5*math.random() + 0.5})
+		game.sound.effects.laser:play({
+			pitch = 0.5*math.random() + 2
+		})
 	end
 
 	function Player:draw()
@@ -46,7 +53,7 @@ function game.newPlayer()
 		end
 
 		love.graphics.setColor(255, 255, 255)
-		love.graphics.circle("fill", Player.x, Player.y, 10)
+		love.graphics.circle("fill", self.x, self.y, self.radius)
 	end
 
 	function Player:update(dt)
@@ -69,11 +76,24 @@ function game.newPlayer()
 	end
 
 	function Player:collides_with_enemy(enemy)
-		return false
+		-- closest points of rectangle
+		local cx = game.math.clamp(self.x, enemy.x, enemy.x + enemy.width)
+		local cy = game.math.clamp(self.y, enemy.y, enemy.y + enemy.height)
+		
+		-- distances to that point
+		local dx = self.x - cx
+		local dy = self.y - cy
+
+		local d2 = dx*dx + dy*dy
+
+		return d2 < math.pow(self.radius, 2)
 	end
 
 	function Player:hit()
-		self.health = self.health - 20
+		self.health = self.health - 100
+		game.sound.effects.ship_hit:play({
+			pitch = 0.5*math.random() + 1
+		})
 	end
 
 	function Player:is_dead()
