@@ -4,6 +4,7 @@ function game.newPlayer()
 		x = 240,
 		y = 720,
 		canFire = true,
+		health = 500,
 
 		-- other values
 		speed = 200,
@@ -38,6 +39,7 @@ function game.newPlayer()
 			bullet:draw()
 		end
 
+		love.graphics.setColor(255, 255, 255)
 		love.graphics.circle("fill", Player.x, Player.y, 10)
 	end
 
@@ -58,6 +60,18 @@ function game.newPlayer()
 		end
 
 		Player:move(dt)
+	end
+
+	function Player:collides_with_enemy(enemy)
+		return false
+	end
+
+	function Player:hit()
+		self.health = self.health - 20
+	end
+
+	function Player:is_dead()
+		return self.health <= 0
 	end
 
 	return Player
