@@ -2,6 +2,8 @@ require("lib/middleclass")
 require("game/game")
 
 function love.load()
+	game.gfx.initialize()
+
 	player = game.newPlayer()
 	enemies = game.newEnemies()
 	
@@ -10,6 +12,9 @@ function love.load()
 end
 
 function love.update(dt)
+
+	game.gfx.update(dt)
+
 	for i, object in ipairs(updateables) do
 		object:update(dt)
 	end
@@ -45,18 +50,20 @@ function love.focus(f)
 end
 
 function love.draw()
-	for i, object in ipairs(drawables) do
-		object:draw()
-	end
+	game.gfx.fx:draw(function()
+		for i, object in ipairs(drawables) do
+			object:draw()
+		end
 
-	if game.show_debug then
-		local fps = love.timer.getFPS()
-		local mem = collectgarbage("count")
-		local stats = ("fps: %d, mem: %dKB"):format(fps, mem)
+		if game.show_debug then
+			local fps = love.timer.getFPS()
+			local mem = collectgarbage("count")
+			local stats = ("fps: %d, mem: %dKB"):format(fps, mem)
 
-		love.graphics.setColor(255, 255, 255)
-		love.graphics.printf(stats, 10, love.graphics.getHeight() - 20, love.graphics.getWidth(), "left")
-	end
+			love.graphics.setColor(255, 255, 255)
+			love.graphics.printf(stats, 10, love.graphics.getHeight() - 20, love.graphics.getWidth(), "left")
+		end
+	end)
 end
 
 function love.keypressed(k)

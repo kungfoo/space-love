@@ -26,12 +26,18 @@ function game.newPlayer()
 		local fire = love.keyboard.isDown('space')
 
 		if fire and self.canFire then
-			local bullet = game.newBullet(self.x, self.y)
-			
-			table.insert(self.bullets, bullet)
-			self.canFire = false
-			self.firingTimer = 0.2
+			self:fire_bullet()
 		end
+	end
+
+	function Player:fire_bullet()
+		local bullet = game.newBullet(self.x, self.y)
+		
+		table.insert(self.bullets, bullet)
+		self.canFire = false
+		self.firingTimer = 0.2
+
+		game.sound.effects.laser:play({ pitch = 0.5*math.random() + 0.5})
 	end
 
 	function Player:draw()

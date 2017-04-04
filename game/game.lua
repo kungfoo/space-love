@@ -1,9 +1,26 @@
-game = {
-	colors = {},
-	show_debug = false
-}
+
+
+
+love.window.setMode(love.graphics.getWidth(), love.graphics.getHeight(), {
+	vsync = false,
+	msaa = 8
+})
 
 math.randomseed(os.time())
+
+game = {
+	colors = {},
+	show_debug = false,
+	sound = {},
+	gfx = {}
+}
+
+require("game.sound")
+require("gfx.post")
+
+-- set up ripple audio
+game.sound.tags.master:setVolume(1)
+game.sound.tags.sfx:setVolume(0.5)
 
 function game.check_collision(x1, y1, w1, h1, x2, y2, w2, h2)
 	return 	x1 < x2+w2 and
@@ -52,6 +69,10 @@ function game.colors.hsl(h, s, l, a)
 	else              r,g,b = c,0,x
 	
 	end return (r+m)*255,(g+m)*255,(b+m)*255,a
+end
+
+function game.resources()
+	-- todo: add generic resource loading.
 end
 
 require("game.player")

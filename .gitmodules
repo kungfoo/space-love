@@ -1,0 +1,6 @@
+[submodule "lib/ripple"]
+	path = lib/ripple
+	url = git@github.com:tesselode/ripple.git
+[submodule "lib/shine"]
+	path = lib/shine
+	url = git@github.com:vrld/shine.git

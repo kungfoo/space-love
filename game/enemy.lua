@@ -36,6 +36,8 @@ function game.newEnemy()
 
 	function Enemy:hit()
 		self.health = self.health - 10
+
+		game.sound.effects.hit:play()
 	end
 
 	function Enemy:is_dead()
