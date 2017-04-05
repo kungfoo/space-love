@@ -9,7 +9,7 @@ function game.newEnemy()
 		width = 20,
 		height = 20,
 
-		health = math.random(30, 100),
+		health = math.random(30, 110),
 
 		speed = math.random(50, 100) + 50,
 
@@ -26,7 +26,7 @@ function game.newEnemy()
 		local hue = (self.health/100) * 360
 		local alpha = ((self.health/100) * 200) + 55
 
-		return game.colors.hsl(hue, self.health, 50, alpha)
+		return game.colors.hsl(hue, 50, 50, alpha)
 	end
 
 	function Enemy:update(dt)

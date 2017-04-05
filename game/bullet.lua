@@ -1,10 +1,10 @@
 function game.newBullet(a, b)
 	local Bullet = {
-		x = a,
-		y = b,
-
 		width = 4,
-		height = 10
+		height = 10,
+		
+		x = a - 1, --half the width, so bullets are vertically centered.
+		y = b
 	}
 	
 	function Bullet:draw()
