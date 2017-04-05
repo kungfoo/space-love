@@ -30,16 +30,16 @@ function Enemies.Gibs:update(dt)
 end
 
 function Enemies.Gibs.Particle:init(x, y)
-	local initial_speed = 70
+	local initial_speed = 140
 
 	self.x = x
 	self.y = y
-	self.hue = math.random(30, 260)
+	self.hue = math.random(5, 50)
 	self.vm = { math.random(-initial_speed, initial_speed), math.random(-initial_speed, initial_speed) }
 end
 
 function Enemies.Gibs.Particle:draw(timer_scaled)
-	love.graphics.setColor(game.colors.hsl(self.hue, 50, 50, timer_scaled * 255))
+	love.graphics.setColor(game.colors.hsl(self.hue, 80, 50, timer_scaled * 255))
 	love.graphics.rectangle("fill", self.x, self.y, timer_scaled * 10, timer_scaled * 10)
 end
 
