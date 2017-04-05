@@ -1,5 +1,7 @@
 
 Signal = require("lib.hump.signal")
+Class = require("lib.hump.class")
+
 require("game/game")
 
 function love.load()
@@ -10,7 +12,7 @@ function love.load()
 	game.sound.start()
 
 	player = game.newPlayer()
-	enemies = game.newEnemies()
+	enemies = Enemies()
 	scoreboard = game.newScoreboard()
 	
 	drawables = { enemies, player, scoreboard }

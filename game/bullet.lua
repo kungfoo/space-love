@@ -1,3 +1,7 @@
+
+Bullet = Class {}
+Bullet.Gibs = Class {}
+
 function game.newBullet(a, b)
 	local Bullet = {
 		width = 4,
