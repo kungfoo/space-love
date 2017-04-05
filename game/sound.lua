@@ -65,6 +65,12 @@ do
 		})
 	end)
 
+	Signal.register("enemy-killed", function()
+		game.sound.effects.ship_hit:play({
+			pitch = 0.9*math.random() + 0.5
+		})
+	end)
+
 	Signal.register("enemy-hit", function()
 		game.sound.effects.hit_enemy:play({
 			pitch = 0.5*math.random() + 0.7

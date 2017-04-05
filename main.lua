@@ -36,6 +36,7 @@ function love.update(dt)
 					scoreboard:hit()
 
 					if enemy:is_dead() then
+						Signal.emit("enemy-killed", enemy.x, enemy.y)
 						enemies:remove(i)
 						scoreboard:kill()
 					end
@@ -46,6 +47,7 @@ function love.update(dt)
 
 			if player:collides_with_enemy(enemy) then
 				player:hit()
+				Signal.emit("enemy-killed", enemy.x, enemy.y)
 				enemies:remove(i)
 
 				if player:is_dead() then
