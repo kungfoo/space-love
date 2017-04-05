@@ -1,18 +1,16 @@
 require("game.enemy")
 
 function game.newEnemies()
+return {
 
-	local Enemies = {
+	spawningTimer = 0.5,
+	level = 0.2,
 
-		spawningTimer = 0.5,
-		level = 0.2,
+	kills = 0,
 
-		kills = 0,
+	enemies = {},
 
-		enemies = {}
-	}
-
-	function Enemies:update(dt)
+	update = function(self, dt)
 		local level_scaled = ((self.kills / 10.0) + 1.0) * self.level
 
 		self.spawningTimer = self.spawningTimer - dt * level_scaled
@@ -23,12 +21,12 @@ function game.newEnemies()
 			self.spawningTimer = 0.5
 		end
 
-		for i, enemy in ipairs(self.enemies) do
+		for _, enemy in ipairs(self.enemies) do
 			enemy:update(dt)
 		end
-	end
+	end,
 
-	function Enemies:draw()
+	draw = function(self)
 		for i, enemy in ipairs(self.enemies) do
 			enemy:draw()
 
@@ -36,17 +34,16 @@ function game.newEnemies()
 				table.remove(enemies, i)
 			end
 		end
-	end
+	end,
 
-	function Enemies:increase_kill_count()
+	increase_kill_count = function(self)
 		self.kills = self.kills + 1
 		print(("kills: %d"):format(self.kills))
-	end
+	end,
 
-	function Enemies:remove(i)
-		Enemies:increase_kill_count()
+	remove = function(self, i)
+		self:increase_kill_count()
 		table.remove(self.enemies, i)
 	end
-
-	return Enemies
+}
 end

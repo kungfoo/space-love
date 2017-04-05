@@ -30,6 +30,10 @@ function game.toggle_debug()
 	game.show_debug = not game.show_debug
 end
 
+function game.toggle_pause()
+	game.paused = not game.paused
+end
+
 -- convert hsv values to rgb
 function game.colors.hsv(h, s, v)
 	if s <= 0 then return v,v,v end
@@ -71,6 +75,21 @@ end
 function game.math.clamp(value, min, max)
 	return math.max(min, math.min(max, value))
 end
+
+local function Proxy(f)
+	return setmetatable({}, {__index = function(t,k)
+		local v = f(k)
+		t[k] = v
+		return v
+	end})
+end
+
+Font  = Proxy(function(arg)
+	if tonumber(arg) then
+		return love.graphics.newFont('font/slkscr.ttf', arg)
+	end
+	return Proxy(function(size) return love.graphics.newFont('font/'..arg..'.ttf', size) end)
+end)
 
 require("game.scoreboard")
 require("game.player")

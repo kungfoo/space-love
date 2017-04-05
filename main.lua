@@ -1,10 +1,12 @@
-require("lib/middleclass")
+
+Signal = require("lib.hump.signal")
 require("game/game")
 
 function love.load()
 	game.over = false
-	game.gfx.initialize()
+	game.paused = false
 
+	game.gfx.initialize()
 	game.sound.start()
 
 	player = game.newPlayer()
@@ -22,7 +24,7 @@ function love.update(dt)
 	game.gfx.update(dt)
 	game.sound.update(dt)
 
-	if not game.over then
+	if not game.over and not game.paused then
 		for i, object in ipairs(updateables) do
 			object:update(dt)
 		end
@@ -58,16 +60,16 @@ end
 
 function love.focus(f)
 	if not f then
-		print("LOST FOCUS")
+		game.paused = true
 	else
-		print("GAINED FOCUS")
+		game.paused = false
 	end
 end
 
 function love.draw()
 	game.gfx.fx:draw(
 		function()
-			if not game.over then
+			if not game.over and not game.paused then
 				for i, object in ipairs(drawables) do
 					object:draw()
 				end
@@ -77,13 +79,20 @@ function love.draw()
 					local mem = collectgarbage("count")
 					local stats = ("fps: %d, mem: %dKB"):format(fps, mem)
 
+					love.graphics.setFont(Font[15])
 					love.graphics.setColor(255, 255, 255)
 					love.graphics.printf(stats, 10, love.graphics.getHeight() - 20, love.graphics.getWidth(), "left")
 				end
+			elseif game.paused and not game.over then
+				love.graphics.setFont(Font[20])
+				love.graphics.print("PAUSED", 100, 100)
 			else
-				love.graphics.print("GAME OVER!", 100, 100, 0, 2, 2)
-				love.graphics.print("YOU SCORED: "..scoreboard.score, 100, 150, 0, 1)
-				love.graphics.print("PRESS 'R' TO RESTART.", 100, 180, 0, 1, 1)
+				love.graphics.setFont(Font[40])
+				love.graphics.print("GAME OVER!", 100, 100)
+
+				love.graphics.setFont(Font[20])
+				love.graphics.print("YOU SCORED: "..scoreboard.score, 100, 150)
+				love.graphics.print("PRESS 'R' TO RESTART.", 100, 180)
 			end
 		end
 	)
@@ -93,6 +102,7 @@ function love.keypressed(k)
 	if k == "escape" then love.event.quit() end
 	if k == "tab" then game.toggle_debug() end
 	if k == "delete" then collectgarbage("collect") end
+	if k == "pause" then game.toggle_pause() end
 	if k == "r" then love.load() end
 end
 

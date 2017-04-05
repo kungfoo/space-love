@@ -42,9 +42,7 @@ function game.newPlayer()
 		self.canFire = false
 		self.firingTimer = 0.2
 
-		game.sound.effects.laser:play({
-			pitch = 0.5*math.random() + 2
-		})
+		Signal.emit("player-shot-fired")
 	end
 
 	function Player:draw()
@@ -91,9 +89,8 @@ function game.newPlayer()
 
 	function Player:hit()
 		self.health = self.health - 100
-		game.sound.effects.ship_hit:play({
-			pitch = 0.5*math.random() + 1
-		})
+		
+		Signal.emit("player-hit")
 	end
 
 	function Player:is_dead()

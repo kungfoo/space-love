@@ -20,6 +20,7 @@ do
 
 		local grain = shine.filmgrain()
 		grain.opacity = 0.2
+		-- grain.patch_size = 256
 
 		local crt = shine.crt()
 		crt.outline = {100,90,105}

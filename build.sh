@@ -3,7 +3,7 @@
 rm -rf release/
 mkdir release
 
-zip -9 -r release/space.love conf.lua game gfx lib main.lua resources
+zip -9 -r release/space.love conf.lua game gfx lib main.lua resources font
 
 cd release/
 
@@ -12,6 +12,6 @@ unzip -j love-0.10.2-win64.zip
 
 cat love.exe space.love > space.exe
 
-rm love.exe lovec.exe love-0.10.2-win64.zip love.ico game.ico space.love
+rm love.exe lovec.exe love-0.10.2-win64.zip love.ico game.ico
 
-zip -9 space-game.zip *
+zip -9 space-game.zip * -x space.love

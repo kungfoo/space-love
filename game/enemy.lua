@@ -42,9 +42,7 @@ function game.newEnemy()
 		self.health = self.health - 10
 		self.speed = self.speed - self.slow_down
 
-		game.sound.effects.hit_enemy:play({
-			pitch = 0.5*math.random() + 0.7
-		})
+		Signal.emit("enemy-hit")
 	end
 
 	function Enemy:is_dead()

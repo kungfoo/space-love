@@ -13,6 +13,8 @@ function game.newScoreboard()
 		local x = self.padding
 		local y = self.top
 
+		love.graphics.setFont(Font[20])
+		
 		love.graphics.setColor(255, 255, 255, 230)
 		love.graphics.print("HEALTH", self.padding, self.top - (self.height + 3))
 

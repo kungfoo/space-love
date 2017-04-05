@@ -51,4 +51,24 @@ do
 
 	game.sound.effects.laser.volume.v = 0.1
 	game.sound.effects.hit_enemy.volume.v = 1
+
+	-- signals that trigger sounds
+	Signal.register("player-shot-fired", function()
+		game.sound.effects.laser:play({
+			pitch = 0.5*math.random() + 2
+		})
+	end)
+
+	Signal.register("player-hit", function()
+		game.sound.effects.ship_hit:play({
+			pitch = 0.5*math.random() + 1
+		})
+	end)
+
+	Signal.register("enemy-hit", function()
+		game.sound.effects.hit_enemy:play({
+			pitch = 0.5*math.random() + 0.7
+		})
+	end)
+
 end

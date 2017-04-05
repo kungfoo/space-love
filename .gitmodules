@@ -4,3 +4,6 @@
 [submodule "lib/shine"]
 	path = lib/shine
 	url = git@github.com:vrld/shine.git
+[submodule "lib/hump"]
+	path = lib/hump
+	url = git://github.com/vrld/hump
