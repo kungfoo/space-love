@@ -9,10 +9,9 @@ function Enemies:init()
 	self.kills = 0
 
 	self.enemies = {}
-	self.gibs = {}
 
 	Signal.register("enemy-killed", function(x, y)
-		table.insert(self.gibs, Enemies.Gibs(x, y))
+		gibs:insert(Enemies.Gibs(x, y))
 	end)
 end
 
@@ -34,23 +33,11 @@ function Enemies:update(dt)
 			table.remove(self.enemies, i)
 		end
 	end
-
-	for i, g in ipairs(self.gibs) do
-		g:update(dt)
-
-		if g.visible_timer < 0 then
-			table.remove(self.gibs, i)
-		end
-	end
 end
 
 function Enemies:draw()
 	for i, enemy in ipairs(self.enemies) do
 		enemy:draw()
-	end
-
-	for _, g in ipairs(self.gibs) do
-		g:draw()
 	end
 end
 

@@ -29,6 +29,10 @@ function Enemies.Gibs:update(dt)
 	self.visible_timer = self.visible_timer - 2 * dt
 end
 
+function Enemies.Gibs:is_alive()
+	return self.visible_timer > 0
+end
+
 function Enemies.Gibs.Particle:init(x, y)
 	local initial_speed = 140
 

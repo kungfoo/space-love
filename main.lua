@@ -2,7 +2,10 @@
 Signal = require("lib.hump.signal")
 Class = require("lib.hump.class")
 
+
 require("game/game")
+require("util")
+
 
 function love.load()
 	game.over = false
@@ -14,9 +17,20 @@ function love.load()
 	player = game.newPlayer()
 	enemies = Enemies()
 	scoreboard = game.newScoreboard()
-	
-	drawables = { enemies, player, scoreboard }
-	updateables = { enemies, player }
+
+	gibs = GibsSystem()
+
+	joystick_count = love.joystick.getJoystickCount()
+	joysticks = love.joystick.getJoysticks()
+
+	print("Joysticks: "..joystick_count)
+
+	for i, stick in ipairs(joysticks) do
+		print(("Name: %s, guid: %s, id: %s"):format(stick:getName(), stick:getGUID(), stick:getID()))
+	end
+
+	drawables = { enemies, gibs, player, scoreboard }
+	updateables = { enemies, gibs, player }
 end
 
 function love.update(dt)
@@ -34,6 +48,7 @@ function love.update(dt)
 		for i, enemy in ipairs(enemies.enemies) do
 			for j, bullet in ipairs(player.bullets) do
 				if bullet:collides_with_enemy(enemy) then
+					bullet:hit()
 					enemy:hit()
 					scoreboard:hit()
 
@@ -68,6 +83,18 @@ function love.focus(f)
 	else
 		game.paused = false
 	end
+end
+
+function love.joystickpressed(stick, button)
+	player:joystick_pressed(stick, button)
+end
+
+function love.joystickreleased(stick, button)
+	player:joystick_released(stick, button)
+end
+
+function love.joystickaxis(stick, axis, value)
+	player:joystick_axis_moved(stick, axis, value)
 end
 
 function love.draw()

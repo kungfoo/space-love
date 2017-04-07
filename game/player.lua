@@ -12,8 +12,18 @@ function game.newPlayer()
 		health = 500,
 
 		-- other values
-		speed = 200,
-		firingTimer = 0.2,
+		speed = 350,
+		firingTimer = 0.15,
+
+		firing = false,
+
+		-- previous values of stick input
+		leftx = 0,
+		lefty = 0,
+
+		-- current values of movement
+		stickx = 0,
+		sticky = 0,
 
 		bullets = {}
 	}
@@ -28,19 +38,65 @@ function game.newPlayer()
 			self.x = math.min(love.graphics.getWidth(), self.x + self.speed * dt)
 		end
 
-		local fire = love.keyboard.isDown('space')
+		-- this will yield problems, when both keyboard and gamepad are used.
+		self.x = game.math.clamp(self.x + self.stickx * (self.speed * dt), 0, love.graphics.getWidth())
+		self.y = game.math.clamp(self.y + self.sticky * (self.speed * dt), 0, love.graphics.getHeight())
+
+		local fire = love.keyboard.isDown('space') or self.firing
 
 		if fire and self.canFire then
 			self:fire_bullet()
 		end
 	end
 
+	function Player:joystick_pressed(stick, button)
+		if stick:isGamepadDown('a') then
+			self.firing = true
+		end
+	end
+
+	function Player:joystick_released(stick, button)
+		if not stick:isGamepadDown('a') then
+			self.firing = false
+		end
+	end
+
+	function Player:joystick_axis_moved(stick, axis, value)
+		-- print(("stick: %s, axis: %s, value: %s"):format(stick, axis, value))
+		if stick:isGamepad() and axis == 1 then
+			self.leftx = value
+		end
+
+		if stick:isGamepad() and axis == 2 then
+			self.lefty = value
+		end
+
+		self.stickx, self.sticky = correctStick(self.leftx, self.lefty)
+	end
+
+
+	function correctStick( x, y ) --raw x, y axis data from stick
+		local inDZ, outDZ = 0.25, 0.1 --deadzones
+
+		local len = math.sqrt ( x * x + y * y )
+		
+		if len <= inDZ
+			then x, y = 0, 0
+		elseif len + outDZ >= 1 then
+			x, y = x / len, y / len
+		else
+			len = ( len - inDZ ) / ( 1 - inDZ - outDZ )
+	 		x, y = x * len, y * len
+	 	end
+		return x, y -- corrected input that you can use directly in transformations
+	end
+
 	function Player:fire_bullet()
-		local bullet = game.newBullet(self.x, self.y)
+		local bullet = Bullet(self.x, self.y)
 		
 		table.insert(self.bullets, bullet)
 		self.canFire = false
-		self.firingTimer = 0.2
+		self.firingTimer = 0.15
 
 		Signal.emit("player-shot-fired")
 	end
