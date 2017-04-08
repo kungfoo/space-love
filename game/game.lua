@@ -1,6 +1,6 @@
 
 love.window.setMode(love.graphics.getWidth(), love.graphics.getHeight(), {
-	vsync = false,
+	vsync = true,
 	msaa = 8
 })
 

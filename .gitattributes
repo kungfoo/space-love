@@ -2,13 +2,48 @@
 # Set the default behavior, in case people don't have core.autocrlf set.
 * text=lf
 
-# Explicitly declare text files you want to always be normalized and converted
-# to native line endings on checkout.
-*.lua text
-*.json text
+# Handle line endings automatically for files detected as text
+# and leave all files detected as binary untouched.
+* text=lf
 
+#
+# The above will handle all files NOT found below
+#
+# These files are text and should be normalized (Convert crlf => lf)
+*.css           text
+*.df            text
+*.htm           text
+*.html          text
+*.java          text
+*.gitattributes text
+*.groovy        text
+*.js            text
+*.lua		text
+*.json          text
+*.jsp           text
+*.jspf          text
+*.properties    text
+*.sh            text
+*.svg           text
+*.tld           text
+*.txt           text
+*.xml           text
 
-# Denote all files that are truly binary and should not be modified.
-*.png binary
-*.jpg binary
+# Windows batch files are windows files, leave them alon
+*.bat		text	eol=crlf
+
+# These files are binary and should be left untouched
+# (binary is a macro for -text -diff)
+*.class         binary
+*.dll           binary
+*.ear           binary
+*.gif           binary
+*.ico           binary
+*.jar           binary
+*.jks           binary
+*.jpg           binary
+*.jpeg          binary
+*.png           binary
+*.so            binary
+*.war           binary
 
