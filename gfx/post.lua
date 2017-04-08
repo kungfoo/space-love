@@ -18,8 +18,12 @@ do
 		separate_chroma.radius = 2.5
 		separate_chroma.angle = 45
 
+		local glow = shine.glowsimple()
+		glow.sigma = 4
+		glow.min_luma = 0.2
+
 		local grain = shine.filmgrain()
-		grain.opacity = 0.2
+		grain.opacity = 0.3
 		-- grain.patch_size = 256
 
 		local crt = shine.crt()
@@ -33,6 +37,7 @@ do
 
 		game.gfx.fx =
 			separate_chroma:
+			chain(glow):
 			chain(desaturate):
 			chain(grain):
 			-- chain(desaturate):
