@@ -3,7 +3,7 @@
 rm -rf release/
 mkdir release
 
-zip -9 -r release/space.love conf.lua game gfx lib main.lua resources font
+zip -9 -r release/space.love conf.lua game gfx lib main.lua resources font util
 
 cd release/
 
