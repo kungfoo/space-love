@@ -87,7 +87,7 @@ function Bullet.Gibs.Particle:init(x, y)
 end
 
 function Bullet.Gibs.Particle:draw(timer_scaled)
-	love.graphics.setColor(game.colors.hsl(self.hue, 80, 50, timer_scaled * 255))
+	love.graphics.setColor(game.colors.hsl(self.hue, 100, 50, timer_scaled * 255))
 	love.graphics.rectangle("fill", self.x, self.y, timer_scaled * 5, timer_scaled * 5)
 end
 
