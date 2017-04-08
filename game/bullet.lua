@@ -8,7 +8,8 @@ Bullet = Class {
 
 Bullet.Gibs = Class {}
 Bullet.Gibs.Particle = Class {
-	max_alive = 1
+	min_ttl = 0.3,
+	max_ttl = 0.8
 }
 
 function Bullet:init(x, y)
@@ -43,7 +44,8 @@ function Bullet:hit()
 end
 
 function Bullet.Gibs:init(x, y)
-	self.visible_timer = Bullet.Gibs.Particle.max_alive
+	self.ttl = math.random(Bullet.Gibs.Particle.min_ttl, Bullet.Gibs.Particle.max_ttl)
+	self.ttl_timer = self.ttl
 	self.particles = self:create_particles(x, y)
 end
 
@@ -58,7 +60,7 @@ end
 
 function Bullet.Gibs:draw()
 	for _, particle in ipairs(self.particles) do
-		particle:draw(self.visible_timer / Bullet.Gibs.Particle.max_alive)
+		particle:draw(self.ttl_timer / self.ttl)
 	end
 end
 
@@ -66,16 +68,16 @@ function Bullet.Gibs:update(dt)
 	for _, particle in ipairs(self.particles) do
 		particle:update(dt)
 	end
-	self.visible_timer = self.visible_timer - 2 * dt
+	self.ttl_timer = self.ttl_timer - 2 * dt
 end
 
 function Bullet.Gibs:is_alive()
-	return self.visible_timer > 0
+	return self.ttl_timer > 0
 end
 
 
 function Bullet.Gibs.Particle:init(x, y)
-	local initial_speed = 300
+	local initial_speed = 400
 
 	self.x = x
 	self.y = y

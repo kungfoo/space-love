@@ -1,9 +1,13 @@
 
 Enemies.Gibs = Class { }
-Enemies.Gibs.Particle = Class { }
+Enemies.Gibs.Particle = Class {
+	min_ttl = 2,
+	max_ttl = 4
+}
 
 function Enemies.Gibs:init(x, y)
-	self.visible_timer = 5
+	self.ttl = math.random(Enemies.Gibs.Particle.min_ttl, Enemies.Gibs.Particle.max_ttl)
+	self.ttl_timer = self.ttl
 	self.particles = self:create_particles(x,y)
 end
 
@@ -18,7 +22,7 @@ end
 
 function Enemies.Gibs:draw()
 	for _, particle in ipairs(self.particles) do
-		particle:draw(self.visible_timer / 5)
+		particle:draw(self.ttl_timer / self.ttl)
 	end
 end
 
@@ -26,11 +30,11 @@ function Enemies.Gibs:update(dt)
 	for _, particle in ipairs(self.particles) do
 		particle:update(dt)
 	end
-	self.visible_timer = self.visible_timer - 2 * dt
+	self.ttl_timer = self.ttl_timer - 2 * dt
 end
 
 function Enemies.Gibs:is_alive()
-	return self.visible_timer > 0
+	return self.ttl_timer > 0
 end
 
 function Enemies.Gibs.Particle:init(x, y)
