@@ -1,10 +1,11 @@
 
 love.window.setMode(love.graphics.getWidth(), love.graphics.getHeight(), {
 	vsync = true,
-	msaa = 8
+	msaa = 0,
+	highdpi = false
 })
 
-success = love.window.setFullscreen(false, 'exclusive')
+success = love.window.setFullscreen(true, 'desktop')
 
 math.randomseed(os.time())
 
@@ -39,7 +40,7 @@ end
 require("game.scoreboard")
 require("game.gibs")
 require("game.player")
-require("game.bullet")
+require("game.weapons")
 require("game.enemies")
 
 
