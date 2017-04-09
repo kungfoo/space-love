@@ -1,35 +1,39 @@
 
 Signal = require("lib.hump.signal")
 Class = require("lib.hump.class")
+Camera = require("lib.hump.camera")
 
+inspect = require("lib.inspect.inspect")
 
 require("game/game")
 require("util")
 
-
 function love.load()
+
+	local crosshair = Image['crosshair.png']
+	cursor = love.mouse.newCursor(crosshair:getData(), crosshair:getWidth()/2, crosshair:getHeight()/2)
+	love.mouse.setCursor(cursor)
+
+
 	game.over = false
 	game.paused = false
 
 	game.gfx.initialize()
 	game.sound.start()
 
+	world = {
+		width = 6000,
+		height = 4000
+	}
+
 	player = game.newPlayer()
 	enemies = Enemies()
 	scoreboard = game.newScoreboard()
-
 	gibs = GibsSystem()
 
-	joystick_count = love.joystick.getJoystickCount()
-	joysticks = love.joystick.getJoysticks()
+	camera = Camera(player.x, player.y)
 
-	print("Joysticks: "..joystick_count)
-
-	for i, stick in ipairs(joysticks) do
-		print(("Name: %s, guid: %s, id: %s"):format(stick:getName(), stick:getGUID(), stick:getID()))
-	end
-
-	drawables = { enemies, gibs, player, scoreboard }
+	drawables = { enemies, gibs, player }
 	updateables = { enemies, gibs, player }
 end
 
@@ -71,6 +75,8 @@ function love.update(dt)
 					game.over = true
 				end
 			end
+
+			camera:lockPosition(player.x, player.y, Camera.smooth.damped(1))
 		end
 	else
 		-- update nothing
@@ -87,10 +93,18 @@ end
 
 function love.joystickpressed(stick, button)
 	player:joystick_pressed(stick, button)
+
+	if stick:isGamepad() and button == 'y' then
+		camera:zoomTo(0.5)
+	end
 end
 
 function love.joystickreleased(stick, button)
 	player:joystick_released(stick, button)
+
+	if stick:isGamepad() and button == 'y' then
+		camera:zoomTo(1)
+	end
 end
 
 function love.joystickaxis(stick, axis, value)
@@ -101,22 +115,12 @@ function love.draw()
 	game.gfx.fx:draw(
 		function()
 			if not game.over and not game.paused then
-				for i, object in ipairs(drawables) do
-					object:draw()
-				end
+				draw_game()
 
-				if game.show_debug then
-					local fps = love.timer.getFPS()
-					local mem = collectgarbage("count")
-					local stats = ("fps: %d, mem: %dKB"):format(fps, mem)
-
-					love.graphics.setFont(Font[15])
-					love.graphics.setColor(255, 255, 255)
-					love.graphics.printf(stats, 10, love.graphics.getHeight() - 20, love.graphics.getWidth(), "left")
-				end
 			elseif game.paused and not game.over then
 				love.graphics.setFont(Font[20])
 				love.graphics.print("PAUSED", 100, 100)
+
 			else
 				love.graphics.setFont(Font[40])
 				love.graphics.print("GAME OVER!", 100, 100)
@@ -127,6 +131,46 @@ function love.draw()
 			end
 		end
 	)
+end
+
+function draw_game()
+	camera:draw(draw_grid)
+	camera:draw(draw_objects)
+
+	scoreboard:draw()
+
+	if game.show_debug then
+		local fps = love.timer.getFPS()
+		local mem = collectgarbage("count")
+		local stats = ("fps: %d, mem: %dKB, tex_mem: %.3f MB, cam: (%.3f, %.3f)"):format(fps, mem, love.graphics.getStats().texturememory / 1024 / 1024, camera:position())
+
+		love.graphics.setFont(Font[15])
+		love.graphics.setColor(255, 255, 255)
+		love.graphics.printf(stats, 10, love.graphics.getHeight() - 20, love.graphics.getWidth(), "left")
+	end
+end
+
+function draw_grid()
+
+	local step = 100
+	local x = step
+	local y = step
+
+	love.graphics.setColor(game.colors.hsl(212, 100, 22))
+	while y < world.height do
+		love.graphics.line(0, y, world.width, y)
+		y = y + step
+	end
+	while x < world.width do
+		love.graphics.line(x, 0, x, world.height)
+		x = x + step
+	end
+end
+
+function draw_objects()
+	for i, object in ipairs(drawables) do
+		object:draw()
+	end
 end
 
 function love.keypressed(k)

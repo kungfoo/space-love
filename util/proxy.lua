@@ -14,3 +14,7 @@ Font  = Proxy(function(arg)
 	return Proxy(function(size) return love.graphics.newFont('font/'..arg..'.ttf', size) end)
 end)
 
+Image = Proxy(function(image_file)
+	assert(type(image_file) == 'string', 'Loading images requires a string path')
+	return love.graphics.newImage('resources/images/'..image_file)
+end)

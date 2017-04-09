@@ -1,8 +1,8 @@
 function game.newPlayer()
 	local Player = {
 		-- initial position
-		x = 240,
-		y = 720,
+		x = world.width/2,
+		y = world.height/2,
 
 		radius = 10,
 
@@ -35,12 +35,12 @@ function game.newPlayer()
 		if left then
 			self.x = math.max(0, self.x - self.speed * dt)
 		elseif right then
-			self.x = math.min(love.graphics.getWidth(), self.x + self.speed * dt)
+			self.x = math.min(world.width, self.x + self.speed * dt)
 		end
 
 		-- this will yield problems, when both keyboard and gamepad are used.
-		self.x = game.math.clamp(self.x + self.stickx * (self.speed * dt), 0, love.graphics.getWidth())
-		self.y = game.math.clamp(self.y + self.sticky * (self.speed * dt), 0, love.graphics.getHeight())
+		self.x = game.math.clamp(self.x + self.stickx * (self.speed * dt), 0, world.width)
+		self.y = game.math.clamp(self.y + self.sticky * (self.speed * dt), 0, world.height)
 
 		local fire = love.keyboard.isDown('space') or self.firing
 

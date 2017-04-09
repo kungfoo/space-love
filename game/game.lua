@@ -4,6 +4,8 @@ love.window.setMode(love.graphics.getWidth(), love.graphics.getHeight(), {
 	msaa = 8
 })
 
+success = love.window.setFullscreen(false, 'exclusive')
+
 math.randomseed(os.time())
 
 game = {

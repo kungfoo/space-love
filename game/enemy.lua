@@ -3,7 +3,7 @@ function game.newEnemy()
 	
 	local Enemy = {
 		
-		x = math.random(10, love.graphics.getWidth() - 10),
+		x = math.random(10, world.width - 10),
 		y = 0,
 
 		width = 20,
@@ -35,7 +35,7 @@ function game.newEnemy()
 	end
 
 	function Enemy:is_offscreen()
-		return self.y > love.graphics.getHeight() + 10
+		return self.y > world.height + 10
 	end
 
 	function Enemy:hit()
