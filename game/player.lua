@@ -1,24 +1,27 @@
 Player = Class {
 	max_health = 500,
-	speed = 350,
+	max_velocity = 400,
+	acceleration = 800,
+	friction = 1/350,
 	radius = 10
 }
 
 function Player:init()
 	-- initial position
-	self.x = math.random(200, world.width)
-	self.y = math.random(300, world.height)
+
+	self.position = Vector(math.random(200, world.width - 200), math.random(200, world.height - 200))
+	self.velocity = Vector(0,0)
 	
 	self.health = Player.max_health
 	self.firing = false
 
 	-- previous values of stick input
-	self.leftx = 0
-	self.lefty = 0
+	self.left = Vector(0,0)
+	self.right = Vector(0,0)
 
-	-- current values of movement
-	self.stickx = 0
-	self.sticky = 0
+	-- current (sanitized, deadzoned) values of sticks
+	self.l_stick = Vector(0,0)
+	self.r_stick = Vector(0,0)
 
 	-- start out with plasma gun
 	self.weapon = Weapons.Plasma()
@@ -27,50 +30,66 @@ end
 function Player:move(dt)
 	local left = love.keyboard.isDown('a', 'left')
 	local right = love.keyboard.isDown('d', 'right')
+	local up = love.keyboard.isDown('w', 'up')
+	local down = love.keyboard.isDown('s', 'down')
 
-	if left then
-		self.x = math.max(0, self.x - self.speed * dt)
-	elseif right then
-		self.x = math.min(world.width, self.x + self.speed * dt)
+	local delta = Vector(0,0)
+
+	if left then delta.x = -1 end
+	if right then delta.x = 1 end
+	if up then delta.y = -1 end
+	if down then delta.y = 1 end
+
+	-- HACK: override keyboard with controller
+	local stick_delta = self.l_stick
+	if stick_delta:len() > 0 then
+		delta = stick_delta
+	end
+
+	if delta:len() > 0 then
+		delta:normalizeInplace()
+		self.velocity = self.velocity + (delta * self.acceleration * dt)
+	else
+		self.velocity = self.velocity * math.pow(self.friction, dt)
 	end
 
 	-- this will yield problems, when both keyboard and gamepad are used.
-	self.x = game.math.clamp(self.x + self.stickx * (self.speed * dt), 0, world.width)
-	self.y = game.math.clamp(self.y + self.sticky * (self.speed * dt), 0, world.height)
+--	self.x = game.math.clamp(self.x + self.stickx * (self.acceleration * dt), 0, world.width)
+--	self.y = game.math.clamp(self.y + self.sticky * (self.acceleration * dt), 0, world.height)
+
+	self.velocity:trimInplace(self.max_velocity)
+
+	self.position = self.position + self.velocity * dt
 
 	local fire = love.keyboard.isDown('space') or self.firing
 	if fire then
-		self.weapon:trigger(dt)
-	end
-end
-
-function Player:joystick_pressed(stick, button)
-	if stick:isGamepadDown('a') then
-		self.firing = true
-	end
-end
-
-function Player:joystick_released(stick, button)
-	if not stick:isGamepadDown('a') then
-		self.firing = false
+		self.weapon:trigger(self.velocity, self.position, self.r_stick)
 	end
 end
 
 function Player:joystick_axis_moved(stick, axis, value)
-	-- print(("stick: %s, axis: %s, value: %s"):format(stick, axis, value))
 	if stick:isGamepad() and axis == 1 then
-		self.leftx = value
+		self.left.x = value
 	end
 
 	if stick:isGamepad() and axis == 2 then
-		self.lefty = value
+		self.left.y = value
 	end
 
-	self.stickx, self.sticky = self:correctStick(self.leftx, self.lefty)
+	if stick:isGamepad() and axis == 4 then
+		self.right.x = value
+	end
+
+	if stick:isGamepad() and axis == 5 then
+		self.right.y = value
+	end
+
+	self.l_stick = Vector(self:correctStick(self.left.x, self.left.y))
+	self.r_stick = Vector(self:correctStick(self.right.x, self.right.y))
 end
 
 
-function Player:correctStick( x, y ) --raw x, y axis data from stick
+function Player:correctStick(x, y) --raw x, y axis data from stick
 	local inDZ, outDZ = 0.25, 0.1 --deadzones
 
 	local len = math.sqrt ( x * x + y * y )
@@ -88,7 +107,19 @@ end
 
 function Player:draw()
 	love.graphics.setColor(255, 255, 255)
-	love.graphics.circle("fill", self.x, self.y, self.radius)
+	love.graphics.circle("fill", self.position.x, self.position.y, self.radius)
+
+	if self.r_stick:len() > 0 then
+		local aimpoint = self.position + self.r_stick * 200
+		love.graphics.setColor(255, 255, 255, 128)
+		love.graphics.line(self.position.x, self.position.y, aimpoint.x, aimpoint.y)
+	end
+
+	if self.r_stick:len() > 0.5 then
+		self.firing = true
+	else
+		self.firing = false
+	end
 end
 
 function Player:update(dt)
@@ -98,12 +129,12 @@ end
 
 function Player:collides_with_enemy(enemy)
 	-- closest points of rectangle
-	local cx = game.math.clamp(self.x, enemy.x, enemy.x + enemy.width)
-	local cy = game.math.clamp(self.y, enemy.y, enemy.y + enemy.height)
+	local cx = game.math.clamp(self.position.x, enemy.position.x, enemy.position.x + enemy.width)
+	local cy = game.math.clamp(self.position.y, enemy.position.y, enemy.position.y + enemy.height)
 	
 	-- distances to that point
-	local dx = self.x - cx
-	local dy = self.y - cy
+	local dx = self.position.x - cx
+	local dy = self.position.y - cy
 
 	local d2 = dx*dx + dy*dy
 

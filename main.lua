@@ -2,6 +2,7 @@
 Signal = require("lib.hump.signal")
 Class = require("lib.hump.class")
 Camera = require("lib.hump.camera")
+Vector = require("lib.hump.vector")
 
 inspect = require("lib.inspect.inspect")
 
@@ -23,10 +24,7 @@ function love.load()
 	game.gfx.initialize()
 	game.sound.start()
 
-	world = {
-		width = 6000,
-		height = 4000
-	}
+	world = World()
 
 	player = Player()
 	enemies = Enemies()
@@ -35,7 +33,7 @@ function love.load()
 	gibs = GibsSystem()
 	bulletSystem = BulletSystem()
 
-	camera = Camera(player.x, player.y)
+	camera = Camera(player.position.x, player.position.y)
 
 	drawables = { enemies, gibs, bulletSystem, player }
 	updateables = { enemies, gibs, bulletSystem, player }
@@ -61,7 +59,7 @@ function love.update(dt)
 
 			if player:collides_with_enemy(enemy) then
 				player:hit()
-				Signal.emit("enemy-killed", enemy.x, enemy.y)
+				Signal.emit("enemy-killed", enemy.position)
 				enemies:remove(i)
 
 				if player:is_dead() then
@@ -69,7 +67,7 @@ function love.update(dt)
 				end
 			end
 
-			camera:lockPosition(player.x, player.y, Camera.smooth.damped(1))
+			camera:lockPosition(player.position.x, player.position.y, Camera.smooth.damped(1))
 		end
 	else
 		-- update nothing
@@ -85,18 +83,14 @@ function love.focus(f)
 end
 
 function love.joystickpressed(stick, button)
-	player:joystick_pressed(stick, button)
-
 	if stick:isGamepad() and button == 'y' then
-		camera:zoomTo(0.5)
+		camera:zoom(0.5)
 	end
 end
 
 function love.joystickreleased(stick, button)
-	player:joystick_released(stick, button)
-
 	if stick:isGamepad() and button == 'y' then
-		camera:zoomTo(1)
+		camera:zoom(1)
 	end
 end
 
@@ -127,6 +121,7 @@ function love.draw()
 end
 
 function draw_game()
+
 	camera:draw(draw_grid)
 	camera:draw(draw_objects)
 

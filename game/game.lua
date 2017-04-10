@@ -2,7 +2,7 @@
 Game = {}
 
 love.window.setMode(love.graphics.getWidth(), love.graphics.getHeight(), {
-	vsync = true,
+	vsync = false,
 	msaa = 0,
 	highdpi = false
 })
@@ -38,6 +38,7 @@ function game.toggle_pause()
 end
 
 require("game.scoreboard")
+require("game.world")
 require("game.gibs")
 require("game.player")
 require("game.bullets")

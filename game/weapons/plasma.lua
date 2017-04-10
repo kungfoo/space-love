@@ -1,7 +1,7 @@
 
 Weapons.Plasma = Class {
 	Name = "Plasma Gun",
-	FireRate = 0.15
+	FireRate = 0.05
 }
 
 function Weapons.Plasma:init()
@@ -16,14 +16,14 @@ function Weapons.Plasma:update(dt)
 	end
 end
 
-function Weapons.Plasma:trigger(dt)
+function Weapons.Plasma:trigger(player_velocity, position, aim)
 	if self.canFire then
-		self:fire_bullet()
+		self:fire_bullet(player_velocity, position, aim)
 	end
 end
 
-function Weapons.Plasma:fire_bullet()
-	local bullet = Bullet(self.x, self.y)
+function Weapons.Plasma:fire_bullet(player_velocity, position, aim)
+	local bullet = Bullet(player_velocity, position, aim)
 	
 	bulletSystem:insert(bullet)
 	self.canFire = false
@@ -37,7 +37,9 @@ Bullet = Class {
 	hue_start = 290, -- pinkish
 	hue_end = 319,
 
-	speed = 555
+	speed = 1000,
+	damage = 20,
+	mass = 5
 }
 
 Bullet.Gibs = Class {}
@@ -46,41 +48,45 @@ Bullet.Gibs.Particle = Class {
 	max_ttl = 0.8
 }
 
-function Bullet:init(x, y)
+function Bullet:init(player_velocity, position, aim)
+	self.player_velocity = player_velocity
 	self.width = 4
 	self.height = 10
-	self.x = player.x-1 
-	self.y = player.y
+
+	self.position = position:clone()
+	self.velocity = (aim:normalized() * self.speed) + player_velocity
 
 	self.hue = math.random(self.hue_start, self.hue_end)
 end
 
 function Bullet:draw()
 	love.graphics.setColor(game.colors.hsl(self.hue, 100, 50))
-	love.graphics.rectangle("fill", (self.x - self.width/2), self.y, self.width, self.height)
+	local polar = self.velocity:toPolar()
+	game.graphics.rotated_rectangle("fill", self.position.x, self.position.y, self.width, self.height, polar.x)
+	-- love.graphics.circle("fill", (self.position.x), self.position.y, self.width)
 end
 
 function Bullet:update(dt)
-	self.y = self.y - dt * self.speed
+	self.position = self.position + self.velocity * dt
 end
 
 function Bullet:is_offscreen()
-	return self.y < - 20
+	return world:out_of_bounds(self.position)
 end
 
 function Bullet:collides_with_enemy(enemy)
-	return game.check_collision(enemy.x, enemy.y, enemy.width, enemy.height,
-								self.x,  self.y,  self.width,  self.height)
+	return game.check_collision(enemy.position.x, enemy.position.y, enemy.width, enemy.height,
+								self.position.x,  self.position.y,  self.width,  self.height)
 end
 
 function Bullet:hit()
-	gibs:insert(Bullet.Gibs(self.x, self.y))
+	gibs:insert(Bullet.Gibs(self.position))
 end
 
-function Bullet.Gibs:init(x, y)
+function Bullet.Gibs:init(position)
 	self.ttl = math.random(Bullet.Gibs.Particle.min_ttl, Bullet.Gibs.Particle.max_ttl)
 	self.ttl_timer = self.ttl
-	self.particles = self:create_particles(x, y)
+	self.particles = self:create_particles(position:unpack())
 end
 
 function Bullet.Gibs:create_particles(x, y)

@@ -3,21 +3,21 @@ Enemy = Class {
 	width = 20,
 	height = 20,
 	slow_down = 20,
-	speed_up = 20
+	speed_up = 20,
+
+	mass = 100,
+	friction = 1/100
 }
 
-function Enemy:init()
-	self.x = math.random(10, world.width - 10)
-	self.y = 0
-
+function Enemy:init(position)
+	self.position = position
 	self.health = math.random(30, 110)
-
-	self.speed = math.random(50, 100) + 50
+	self.velocity = Vector(0, 0)
 end
 
 function Enemy:draw()
 	love.graphics.setColor(self:color())
-	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+	love.graphics.rectangle("fill", self.position.x, self.position.y, self.width, self.height)
 end
 
 function Enemy:color()
@@ -28,21 +28,23 @@ function Enemy:color()
 end
 
 function Enemy:update(dt)
-	self.y = self.y + self.speed * dt
-	self.speed = self.speed + self.speed_up * dt
+	self.position = self.position + self.velocity * dt
+	self.velocity = self.velocity * math.pow(self.friction, dt)
 end
 
 function Enemy:is_offscreen()
-	return self.y > world.height + 10
+	return world:out_of_bounds(self.position)
 end
 
-function Enemy:hit()
-	self.health = self.health - 10
-	self.speed = self.speed - self.slow_down
+function Enemy:hit(bullet)
+	self.health = self.health - bullet.damage
+	-- vollkommen elasticher stoss:
+	self.velocity = ((self.mass - bullet.mass) * self.velocity + 2 * bullet.mass * bullet.velocity) / (self.mass + bullet.mass)
+	
 	Signal.emit("enemy-hit")
 
 	if self:is_dead() then
-		Signal.emit("enemy-killed", self.x, self.y)
+		Signal.emit("enemy-killed", self.position)
 	end
 end
 

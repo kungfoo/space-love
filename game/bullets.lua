@@ -23,7 +23,6 @@ function BulletSystem:update(dt)
 end
 
 function BulletSystem:draw()
-
 	for i, b in ipairs(self.bullets) do
 		b:draw()
 	end
@@ -33,7 +32,7 @@ function BulletSystem:check_collision(enemy)
 	for j, bullet in ipairs(self.bullets) do
 		if bullet:collides_with_enemy(enemy) then
 			bullet:hit()
-			enemy:hit()
+			enemy:hit(bullet)
 			self:remove(j)
 		end
 	end

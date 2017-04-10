@@ -38,7 +38,7 @@ function Enemies.Gibs:is_alive()
 end
 
 function Enemies.Gibs.Particle:init(x, y)
-	local initial_speed = 140
+	local initial_speed = 300
 
 	self.x = x
 	self.y = y
