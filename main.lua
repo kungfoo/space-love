@@ -5,6 +5,8 @@ Camera = require("lib.hump.camera")
 
 inspect = require("lib.inspect.inspect")
 
+game = {}
+
 require("game/game")
 require("util")
 
@@ -26,15 +28,17 @@ function love.load()
 		height = 4000
 	}
 
-	player = game.newPlayer()
+	player = Player()
 	enemies = Enemies()
-	scoreboard = game.newScoreboard()
+	scoreboard = Scoreboard()
+
 	gibs = GibsSystem()
+	bulletSystem = BulletSystem()
 
 	camera = Camera(player.x, player.y)
 
-	drawables = { enemies, gibs, player }
-	updateables = { enemies, gibs, player }
+	drawables = { enemies, gibs, bulletSystem, player }
+	updateables = { enemies, gibs, bulletSystem, player }
 end
 
 function love.update(dt)
@@ -44,27 +48,16 @@ function love.update(dt)
 	game.gfx.update(dt)
 	game.sound.update(dt)
 
+	scoreboard:update(dt)
+
 	if not game.over and not game.paused then
 		for i, object in ipairs(updateables) do
 			object:update(dt)
 		end
 
 		for i, enemy in ipairs(enemies.enemies) do
-			for j, bullet in ipairs(player.bullets) do
-				if bullet:collides_with_enemy(enemy) then
-					bullet:hit()
-					enemy:hit()
-					scoreboard:hit()
 
-					if enemy:is_dead() then
-						Signal.emit("enemy-killed", enemy.x, enemy.y)
-						enemies:remove(i)
-						scoreboard:kill()
-					end
-
-					table.remove(player.bullets, j)
-				end
-			end
+			bulletSystem:check_collision(enemy)
 
 			if player:collides_with_enemy(enemy) then
 				player:hit()

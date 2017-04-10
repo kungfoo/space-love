@@ -1,4 +1,38 @@
 
+Weapons.Plasma = Class {
+	Name = "Plasma Gun",
+	FireRate = 0.15
+}
+
+function Weapons.Plasma:init()
+	self.firingTimer = Weapons.Plasma.FireRate
+end
+
+function Weapons.Plasma:update(dt)
+	self.firingTimer = self.firingTimer - dt * 1
+	
+	if self.firingTimer < 0 then
+		self.canFire = true
+	end
+end
+
+function Weapons.Plasma:trigger(dt)
+	if self.canFire then
+		self:fire_bullet()
+	end
+end
+
+function Weapons.Plasma:fire_bullet()
+	local bullet = Bullet(self.x, self.y)
+	
+	bulletSystem:insert(bullet)
+	self.canFire = false
+	self.firingTimer = Weapons.Plasma.FireRate
+
+	Signal.emit("player-shot-fired")
+end
+
+
 Bullet = Class {
 	hue_start = 290, -- pinkish
 	hue_end = 319,
@@ -15,8 +49,8 @@ Bullet.Gibs.Particle = Class {
 function Bullet:init(x, y)
 	self.width = 4
 	self.height = 10
-	self.x = x-1 
-	self.y = y
+	self.x = player.x-1 
+	self.y = player.y
 
 	self.hue = math.random(self.hue_start, self.hue_end)
 end
@@ -100,3 +134,4 @@ function Bullet.Gibs.Particle:update(dt)
 	self.vm[1] = self.vm[1] + (dt * (-self.vm[1]))
 	self.vm[2] = self.vm[2] + (dt * (-self.vm[2]))
 end
+

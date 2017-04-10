@@ -1,4 +1,6 @@
 
+Game = {}
+
 love.window.setMode(love.graphics.getWidth(), love.graphics.getHeight(), {
 	vsync = true,
 	msaa = 0,
@@ -10,8 +12,6 @@ success = love.window.setFullscreen(true, 'desktop')
 math.randomseed(os.time())
 
 game = {
-	colors = {},
-	math = {},
 	show_debug = false,
 	sound = {},
 	gfx = {},
@@ -40,6 +40,7 @@ end
 require("game.scoreboard")
 require("game.gibs")
 require("game.player")
+require("game.bullets")
 require("game.weapons")
 require("game.enemies")
 

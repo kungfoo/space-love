@@ -21,7 +21,7 @@ function Enemies:update(dt)
 	self.spawningTimer = self.spawningTimer - dt * level_scaled
 
 	if self.spawningTimer < 0 then
-		local enemy = game.newEnemy()
+		local enemy = Enemy()
 		table.insert(self.enemies, enemy)
 		self.spawningTimer = 0.5
 	end
@@ -29,7 +29,7 @@ function Enemies:update(dt)
 	for i, enemy in ipairs(self.enemies) do
 		enemy:update(dt)
 
-		if enemy:is_offscreen() then
+		if enemy:is_offscreen() or enemy:is_dead() then
 			table.remove(self.enemies, i)
 		end
 	end
