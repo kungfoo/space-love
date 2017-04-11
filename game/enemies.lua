@@ -13,7 +13,7 @@ function Enemies:init()
 		gibs:insert(Enemies.Gibs(position.x, position.y))
 	end)
 
-	self:spawn_random_enemies(1000)
+	self:spawn_random_enemies(500)
 end
 
 function Enemies:spawn_random_enemies(n)

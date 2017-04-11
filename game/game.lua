@@ -1,15 +1,6 @@
+math.randomseed(os.time())
 
 Game = {}
-
-love.window.setMode(love.graphics.getWidth(), love.graphics.getHeight(), {
-	vsync = false,
-	msaa = 0,
-	highdpi = false
-})
-
-success = love.window.setFullscreen(true, 'desktop')
-
-math.randomseed(os.time())
 
 game = {
 	show_debug = false,

@@ -54,8 +54,9 @@ do
 	game.sound.tags.sfx:setVolume(0.5)
 
 	game.sound.effects.laser.volume.v = 0.1
-	game.sound.effects.plasma.volume.v = 0.01
-	game.sound.effects.hit_enemy.volume.v = 1
+	game.sound.effects.plasma.volume.v = 0.1
+	game.sound.effects.hit_enemy.volume.v = 0.6
+	game.sound.effects.ship_hit.volume.v = 0.5
 
 	-- signals that trigger sounds
 	Signal.register("plasma-shot-fired", function()

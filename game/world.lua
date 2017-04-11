@@ -7,9 +7,9 @@ function World:init()
 end
 
 function World:out_of_bounds(position)
-	return position.x < 0 or
-				position.y < 0 or
-				position.x > self.width,
-				position.y > self.height
+	return 	position.x < 0 or
+			position.y < 0 or
+			position.x > self.width or
+			position.y > self.height
 end
 

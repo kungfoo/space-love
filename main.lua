@@ -23,6 +23,8 @@ function love.load()
 	game.gfx.initialize()
 	game.sound.start()
 
+	time_update = 0
+
 	world = World()
 
 	player = Player()
@@ -49,6 +51,8 @@ function love.update(dt)
 	scoreboard:update(dt)
 
 	if not game.over and not game.paused then
+		local t1 = love.timer.getTime()
+
 		for i, object in ipairs(updateables) do
 			object:update(dt)
 		end
@@ -68,9 +72,11 @@ function love.update(dt)
 					game.over = true
 				end
 			end
-
-			camera:lockPosition(player.position.x, player.position.y, Camera.smooth.damped(3))
 		end
+		local t2 = love.timer.getTime()
+		time_update = (t2-t1) * 1000
+
+		camera:lockPosition(player.position.x, player.position.y, Camera.smooth.damped(3))
 	else
 		-- update nothing
 	end
@@ -132,7 +138,7 @@ function draw_game()
 	if game.show_debug then
 		local fps = love.timer.getFPS()
 		local mem = collectgarbage("count")
-		local stats = ("fps: %d, mem: %dKB, tex_mem: %.3f MB, cam: (%.3f, %.3f)"):format(fps, mem, love.graphics.getStats().texturememory / 1024 / 1024, camera:position())
+		local stats = ("upd: %.3fms, fps: %d, mem: %.3fMB, tex_mem: %.3f MB, cam: (%.3f, %.3f)"):format(time_update, fps, mem / 1024, love.graphics.getStats().texturememory / 1024 / 1024, camera:position())
 
 		love.graphics.setFont(Font[15])
 		love.graphics.setColor(255, 255, 255)
