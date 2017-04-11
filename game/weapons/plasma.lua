@@ -1,11 +1,31 @@
 
 Weapons.Plasma = Class {
 	Name = "Plasma Gun",
-	FireRate = 0.05
+	FireRate = 0.1,
+	Spread = 0.2,
+	BulletsPerShot = 1
+}
+
+Bullet = Class {
+	hue_start = 290, -- pinkish
+	hue_end = 319,
+
+	speed = 1000,
+	damage = 15,
+	mass = 5,
+
+	radius = 5
+}
+
+Bullet.Gibs = Class {}
+Bullet.Gibs.Particle = Class {
+	min_ttl = 0.3,
+	max_ttl = 0.8
 }
 
 function Weapons.Plasma:init()
 	self.firingTimer = Weapons.Plasma.FireRate
+	self.bulletsPerShot = Weapons.Plasma.BulletsPerShot
 end
 
 function Weapons.Plasma:update(dt)
@@ -18,52 +38,42 @@ end
 
 function Weapons.Plasma:trigger(player_velocity, position, aim)
 	if self.canFire then
-		self:fire_bullet(player_velocity, position, aim)
+		for i=1, self.bulletsPerShot do
+			self:fire_bullet(player_velocity, position, aim)
+		end
+		Signal.emit("plasma-shot-fired")
 	end
 end
 
 function Weapons.Plasma:fire_bullet(player_velocity, position, aim)
-	local bullet = Bullet(player_velocity, position, aim)
+	local aimz = aim:normalized()
+	local spread_scaled = Weapons.Plasma.Spread * self.bulletsPerShot * 0.5
+	local spread = Vector(
+		(math.random() - 0.5) * spread_scaled, 
+		(math.random() - 0.5) * spread_scaled
+	)
+	aimz = aimz + spread
+
+	local velocity = (aimz:normalized() * Bullet.speed) + player_velocity
+
+	local bullet = Bullet(velocity, position)
 	
 	bulletSystem:insert(bullet)
 	self.canFire = false
 	self.firingTimer = Weapons.Plasma.FireRate
-
-	Signal.emit("player-shot-fired")
 end
 
 
-Bullet = Class {
-	hue_start = 290, -- pinkish
-	hue_end = 319,
-
-	speed = 1000,
-	damage = 20,
-	mass = 5
-}
-
-Bullet.Gibs = Class {}
-Bullet.Gibs.Particle = Class {
-	min_ttl = 0.3,
-	max_ttl = 0.8
-}
-
-function Bullet:init(player_velocity, position, aim)
-	self.player_velocity = player_velocity
-	self.width = 4
-	self.height = 10
-
+function Bullet:init(velocity, position)
 	self.position = position:clone()
-	self.velocity = (aim:normalized() * self.speed) + player_velocity
+	self.velocity = velocity
 
 	self.hue = math.random(self.hue_start, self.hue_end)
 end
 
 function Bullet:draw()
 	love.graphics.setColor(game.colors.hsl(self.hue, 100, 50))
-	local polar = self.velocity:toPolar()
-	game.graphics.rotated_rectangle("fill", self.position.x, self.position.y, self.width, self.height, polar.x)
-	-- love.graphics.circle("fill", (self.position.x), self.position.y, self.width)
+	love.graphics.circle("fill", self.position.x, self.position.y, self.radius)
 end
 
 function Bullet:update(dt)
@@ -75,8 +85,13 @@ function Bullet:is_offscreen()
 end
 
 function Bullet:collides_with_enemy(enemy)
-	return game.check_collision(enemy.position.x, enemy.position.y, enemy.width, enemy.height,
-								self.position.x,  self.position.y,  self.width,  self.height)
+	-- closest points of rectangle
+	local cx = game.math.clamp(self.position.x, enemy.position.x, enemy.position.x + enemy.width)
+	local cy = game.math.clamp(self.position.y, enemy.position.y, enemy.position.y + enemy.height)
+	
+	-- vector to that point
+	local dv = self.position - Vector(cx, cy)
+	return dv:len2() < math.pow(self.radius, 2)
 end
 
 function Bullet:hit()
@@ -91,7 +106,6 @@ end
 
 function Bullet.Gibs:create_particles(x, y)
 	local p = {}
-
 	for i = 1, math.random(12, 16) do
 		table.insert(p, Bullet.Gibs.Particle(x, y))
 	end

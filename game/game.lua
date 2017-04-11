@@ -39,6 +39,7 @@ end
 
 require("game.scoreboard")
 require("game.world")
+require("game.modifiers")
 require("game.gibs")
 require("game.player")
 require("game.bullets")

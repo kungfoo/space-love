@@ -62,7 +62,7 @@ function Player:move(dt)
 	self.position = self.position + self.velocity * dt
 
 	local fire = love.keyboard.isDown('space') or self.firing
-	if fire then
+	if fire and self.r_stick:len() > 0.25 then
 		self.weapon:trigger(self.velocity, self.position, self.r_stick)
 	end
 end
@@ -87,7 +87,6 @@ function Player:joystick_axis_moved(stick, axis, value)
 	self.l_stick = Vector(self:correctStick(self.left.x, self.left.y))
 	self.r_stick = Vector(self:correctStick(self.right.x, self.right.y))
 end
-
 
 function Player:correctStick(x, y) --raw x, y axis data from stick
 	local inDZ, outDZ = 0.25, 0.1 --deadzones
@@ -148,4 +147,8 @@ end
 
 function Player:is_dead()
 	return self.health <= 0
+end
+
+function Player:pickup(item)
+	item:apply(self)
 end

@@ -17,7 +17,6 @@ function love.load()
 	cursor = love.mouse.newCursor(crosshair:getData(), crosshair:getWidth()/2, crosshair:getHeight()/2)
 	love.mouse.setCursor(cursor)
 
-
 	game.over = false
 	game.paused = false
 
@@ -29,13 +28,14 @@ function love.load()
 	player = Player()
 	enemies = Enemies()
 	scoreboard = Scoreboard()
+	modifiers = Modifiers()
 
 	gibs = GibsSystem()
 	bulletSystem = BulletSystem()
 
 	camera = Camera(player.position.x, player.position.y)
 
-	drawables = { enemies, gibs, bulletSystem, player }
+	drawables = { enemies, modifiers, gibs, bulletSystem, player }
 	updateables = { enemies, gibs, bulletSystem, player }
 end
 
@@ -53,6 +53,8 @@ function love.update(dt)
 			object:update(dt)
 		end
 
+		modifiers:apply(player)
+
 		for i, enemy in ipairs(enemies.enemies) do
 
 			bulletSystem:check_collision(enemy)
@@ -67,7 +69,7 @@ function love.update(dt)
 				end
 			end
 
-			camera:lockPosition(player.position.x, player.position.y, Camera.smooth.damped(1))
+			camera:lockPosition(player.position.x, player.position.y, Camera.smooth.damped(3))
 		end
 	else
 		-- update nothing

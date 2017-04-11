@@ -9,6 +9,10 @@ do
 	}
 
 	game.sound.effects = {
+		plasma = ripple.newSound(
+			"/resources/sounds/plasma_shot.ogg",
+			{ tags = { game.sound.tags.sfx, game.sound.tags.master } }
+		),
 		laser = ripple.newSound(
 			"/resources/sounds/laser_shot.ogg",
 			{ tags = { game.sound.tags.sfx, game.sound.tags.master } }
@@ -50,11 +54,12 @@ do
 	game.sound.tags.sfx:setVolume(0.5)
 
 	game.sound.effects.laser.volume.v = 0.1
+	game.sound.effects.plasma.volume.v = 0.01
 	game.sound.effects.hit_enemy.volume.v = 1
 
 	-- signals that trigger sounds
-	Signal.register("player-shot-fired", function()
-		game.sound.effects.laser:play({
+	Signal.register("plasma-shot-fired", function()
+		game.sound.effects.plasma:play({
 			pitch = 0.5*math.random() + 2
 		})
 	end)

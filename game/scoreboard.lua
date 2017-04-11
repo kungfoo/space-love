@@ -20,7 +20,7 @@ end
 function Scoreboard:update(dt)
 	if self.showing_score < self.score then
 		-- ease towards score over time
-		self.showing_score = math.min(self.score, self.showing_score + (self.score - self.showing_score) * 2 * dt)
+		self.showing_score = math.min(self.score, self.showing_score + (self.score - self.showing_score) * 8 * dt)
 	end
 	-- snap to final score in the end
 	if self.score - self.showing_score <= 1 then

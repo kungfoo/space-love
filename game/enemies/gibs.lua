@@ -40,23 +40,20 @@ end
 function Enemies.Gibs.Particle:init(x, y)
 	local initial_speed = 300
 
-	self.x = x
-	self.y = y
+	self.position = Vector(x,y)
+	self.velocity = Vector(math.random()-0.5, math.random()-0.5) * initial_speed
+
 	self.hue = math.random(5, 50)
-	self.vm = { math.random(-initial_speed, initial_speed), math.random(-initial_speed, initial_speed) }
 end
 
 function Enemies.Gibs.Particle:draw(timer_scaled)
 	love.graphics.setColor(game.colors.hsl(self.hue, 80, 50, timer_scaled * 255))
-	love.graphics.rectangle("fill", self.x, self.y, timer_scaled * 10, timer_scaled * 10)
+	love.graphics.rectangle("fill", self.position.x, self.position.y, timer_scaled * 10, timer_scaled * 10)
 end
 
 function Enemies.Gibs.Particle:update(dt)
-	-- update position
-	self.x = self.x + dt * self.vm[1]
-	self.y = self.y + dt * self.vm[2]
+	self.position = self.position + dt * self.velocity
 
 	-- slow down
-	self.vm[1] = self.vm[1] + (dt * (-self.vm[1]))
-	self.vm[2] = self.vm[2] + (dt * (-self.vm[2]))
+	self.velocity = self.velocity + (dt * -self.velocity)
 end
