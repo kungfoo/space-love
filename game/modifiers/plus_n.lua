@@ -31,13 +31,12 @@ function Modifiers.PlusN:dist(a, b)
 end
 
 function Modifiers.PlusN:apply(player)
-	print("Applying +"..self.n)
 	player.weapon.bulletsPerShot = player.weapon.bulletsPerShot + self.n
 end
 
 
 function Modifiers.PlusN:collides_with(player)
 	local distance = self:dist(self.position, player.position)
-	return distance < (player.radius + self.radius - 10)
+	return distance < (player.radius + self.radius - 5)
 end
 

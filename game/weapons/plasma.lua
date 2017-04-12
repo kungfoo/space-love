@@ -7,6 +7,7 @@ Weapons.Plasma = Class {
 }
 
 Bullet = Class {
+	type = 'bullet',
 	hue_start = 290, -- pinkish
 	hue_end = 319,
 
@@ -14,12 +15,13 @@ Bullet = Class {
 	damage = 15,
 	mass = 5,
 
-	radius = 5
+	radius = 5,
+	max_ttl = 5
 }
 
 Bullet.Gibs = Class {}
 Bullet.Gibs.Particle = Class {
-	min_ttl = 0.3,
+	min_ttl = 0.4,
 	max_ttl = 0.8
 }
 
@@ -47,7 +49,7 @@ end
 
 function Weapons.Plasma:fire_bullet(player_velocity, position, aim)
 	local aimz = aim:normalized()
-	local spread_scaled = Weapons.Plasma.Spread * self.bulletsPerShot * 0.5
+	local spread_scaled = Weapons.Plasma.Spread * self.bulletsPerShot * 0.3
 	local spread = Vector(
 		(math.random() - 0.5) * spread_scaled, 
 		(math.random() - 0.5) * spread_scaled
@@ -66,7 +68,11 @@ end
 
 function Bullet:init(velocity, position)
 	self.position = position:clone()
+	self.hc_object = HC.circle(self.position.x, self.position.y, self.radius)
+	self.hc_object.game_object = self
+
 	self.velocity = velocity
+	self.ttl = self.max_ttl
 
 	self.hue = math.random(self.hue_start, self.hue_end)
 end
@@ -78,20 +84,13 @@ end
 
 function Bullet:update(dt)
 	self.position = self.position + self.velocity * dt
+	self.hc_object:moveTo(self.position:unpack())
+	-- time out bullets after quite some flying around...
+	-- self.ttl = self.ttl - 2.5 * dt
 end
 
 function Bullet:is_offscreen()
-	return world:out_of_bounds(self.position)
-end
-
-function Bullet:collides_with_enemy(enemy)
-	-- closest points of rectangle
-	local cx = game.math.clamp(self.position.x, enemy.position.x, enemy.position.x + enemy.width)
-	local cy = game.math.clamp(self.position.y, enemy.position.y, enemy.position.y + enemy.height)
-	
-	-- vector to that point
-	local dv = self.position - Vector(cx, cy)
-	return dv:len2() < math.pow(self.radius, 2)
+	return world:out_of_bounds(self.position) or self.ttl < 0
 end
 
 function Bullet:hit()

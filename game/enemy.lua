@@ -1,5 +1,6 @@
 
 Enemy = Class {
+	type = 'enemy',
 	width = 20,
 	height = 20,
 	slow_down = 20,
@@ -13,6 +14,12 @@ function Enemy:init(position)
 	self.position = position
 	self.health = math.random(30, 110)
 	self.velocity = Vector(0, 0)
+
+	local xc = position.x + self.width/2
+	local yc = position.y + self.height/2
+
+	self.hc_object = HC.rectangle(xc, yc, self.width, self.height)
+	self.hc_object.game_object = self
 end
 
 function Enemy:draw()
@@ -29,6 +36,8 @@ end
 
 function Enemy:update(dt)
 	self.position = self.position + self.velocity * dt
+	self.hc_object:moveTo(self.position.x + self.width/2, self.position.y + self.height/2)
+
 	self.velocity = self.velocity * math.pow(self.friction, dt)
 end
 

@@ -2,7 +2,8 @@
 Enemies.Gibs = Class { }
 Enemies.Gibs.Particle = Class {
 	min_ttl = 2,
-	max_ttl = 4
+	max_ttl = 4,
+	initial_speed = 300
 }
 
 function Enemies.Gibs:init(x, y)
@@ -15,8 +16,13 @@ function Enemies.Gibs:create_particles(x, y)
 	local p = {}
 
 	for i = 1, math.random(24, 32) do
-		table.insert(p, Enemies.Gibs.Particle(x, y))
+		table.insert(p, Enemies.Gibs.Particle(x, y, Enemies.Gibs.Particle.initial_speed))
 	end
+
+	for i = 1, math.random(6, 16) do
+		table.insert(p, Enemies.Gibs.Particle(x, y,  Enemies.Gibs.Particle.initial_speed * 3))
+	end
+
 	return p
 end
 
@@ -37,11 +43,9 @@ function Enemies.Gibs:is_alive()
 	return self.ttl_timer > 0
 end
 
-function Enemies.Gibs.Particle:init(x, y)
-	local initial_speed = 300
-
+function Enemies.Gibs.Particle:init(x, y, speed)
 	self.position = Vector(x,y)
-	self.velocity = Vector(math.random()-0.5, math.random()-0.5) * initial_speed
+	self.velocity = Vector(math.random()-0.5, math.random()-0.5) * speed
 
 	self.hue = math.random(5, 50)
 end

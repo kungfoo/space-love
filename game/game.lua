@@ -30,6 +30,7 @@ end
 
 require("game.scoreboard")
 require("game.world")
+require("game.collision_resolver")
 require("game.modifiers")
 require("game.gibs")
 require("game.player")

@@ -6,21 +6,21 @@ function GibsSystem:init()
 end
 
 function GibsSystem:update(dt)
-	for i, g in ipairs(self.gibs) do
+	for g, _ in pairs(self.gibs) do
 		g:update(dt)
 
 		if not g:is_alive() then
-			table.remove(self.gibs, i)
+			self.gibs[g] = nil
 		end
 	end
 end
 
 function GibsSystem:draw()
-	for _, g in ipairs(self.gibs) do
+	for g, _ in pairs(self.gibs) do
 		g:draw()
 	end
 end
 
 function GibsSystem:insert(gibs)
-	table.insert(self.gibs, gibs)
+	self.gibs[gibs] = true
 end

@@ -49,6 +49,33 @@ do
 		end
 	end
 
+	game.sound.register = function()
+		-- signals that trigger sounds
+		Signal.register("plasma-shot-fired", function()
+			game.sound.effects.plasma:play({
+				pitch = 0.5*math.random() + 2
+			})
+		end)
+
+		Signal.register("player-hit", function()
+			game.sound.effects.ship_hit:play({
+				pitch = 0.5*math.random() + 1
+			})
+		end)
+
+		Signal.register("enemy-killed", function()
+			game.sound.effects.ship_hit:play({
+				pitch = 0.9*math.random() + 0.5
+			})
+		end)
+
+		Signal.register("enemy-hit", function()
+			game.sound.effects.hit_enemy:play({
+				pitch = 0.5*math.random() + 0.7
+			})
+		end)
+	end
+
 	-- set up ripple audio
 	game.sound.tags.master:setVolume(1)
 	game.sound.tags.sfx:setVolume(0.5)
@@ -57,30 +84,5 @@ do
 	game.sound.effects.plasma.volume.v = 0.1
 	game.sound.effects.hit_enemy.volume.v = 0.6
 	game.sound.effects.ship_hit.volume.v = 0.5
-
-	-- signals that trigger sounds
-	Signal.register("plasma-shot-fired", function()
-		game.sound.effects.plasma:play({
-			pitch = 0.5*math.random() + 2
-		})
-	end)
-
-	Signal.register("player-hit", function()
-		game.sound.effects.ship_hit:play({
-			pitch = 0.5*math.random() + 1
-		})
-	end)
-
-	Signal.register("enemy-killed", function()
-		game.sound.effects.ship_hit:play({
-			pitch = 0.9*math.random() + 0.5
-		})
-	end)
-
-	Signal.register("enemy-hit", function()
-		game.sound.effects.hit_enemy:play({
-			pitch = 0.5*math.random() + 0.7
-		})
-	end)
 
 end

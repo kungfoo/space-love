@@ -10,3 +10,6 @@
 [submodule "lib/inspect"]
 	path = lib/inspect
 	url = git@github.com:kikito/inspect.lua.git
+[submodule "lib/HC"]
+	path = lib/HC
+	url = git@github.com:vrld/HC.git

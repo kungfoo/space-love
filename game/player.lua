@@ -1,4 +1,5 @@
 Player = Class {
+	type = 'player',
 	max_health = 500,
 	max_velocity = 400,
 	acceleration = 800,
@@ -10,6 +11,9 @@ function Player:init()
 	-- initial position
 
 	self.position = Vector(math.random(200, world.width - 200), math.random(200, world.height - 200))
+	self.hc_object = HC.circle(self.position.x, self.position.y, self.radius)
+	self.hc_object.game_object = self
+
 	self.velocity = Vector(0,0)
 	
 	self.health = Player.max_health
@@ -60,6 +64,7 @@ function Player:move(dt)
 	self.velocity:trimInplace(self.max_velocity)
 
 	self.position = self.position + self.velocity * dt
+	self.hc_object:moveTo(self.position:unpack())
 
 	local fire = love.keyboard.isDown('space') or self.firing
 	if fire and self.r_stick:len() > 0.25 then
@@ -126,18 +131,10 @@ function Player:update(dt)
 	self:move(dt)
 end
 
-function Player:collides_with_enemy(enemy)
-	-- closest points of rectangle
-	local cx = game.math.clamp(self.position.x, enemy.position.x, enemy.position.x + enemy.width)
-	local cy = game.math.clamp(self.position.y, enemy.position.y, enemy.position.y + enemy.height)
-	
-	-- distances to that point
-	local dx = self.position.x - cx
-	local dy = self.position.y - cy
-
-	local d2 = dx*dx + dy*dy
-
-	return d2 < math.pow(self.radius, 2)
+function Player:check_collisions()
+	for other, separating_vector in pairs(HC.collisions(self.hc_object)) do
+		Signal.emit("collision", self, other.game_object, separating_vector)
+	end
 end
 
 function Player:hit()
