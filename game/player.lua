@@ -2,7 +2,7 @@ Player = Class {
 	type = 'player',
 	max_health = 500,
 	max_velocity = 400,
-	acceleration = 800,
+	acceleration = 1000,
 	friction = 1/350,
 	radius = 10
 }
