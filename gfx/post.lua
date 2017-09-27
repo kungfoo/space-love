@@ -40,7 +40,6 @@ do
 			chain(glow):
 			chain(desaturate):
 			chain(grain):
-			-- chain(desaturate):
 			chain(crt)
 	end
 end

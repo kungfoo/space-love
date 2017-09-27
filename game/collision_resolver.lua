@@ -22,6 +22,6 @@ function CollisionResolver:resolve_collision(a, b, separating_vector)
 		b:hit(a)
 		a:hit()
 
-		bulletSystem:remove(a)
+		bullets:remove(a)
 	end
 end

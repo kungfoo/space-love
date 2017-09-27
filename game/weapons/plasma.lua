@@ -60,7 +60,7 @@ function Weapons.Plasma:fire_bullet(player_velocity, position, aim)
 
 	local bullet = Bullet(velocity, position)
 	
-	bulletSystem:insert(bullet)
+	bullets:insert(bullet)
 	self.canFire = false
 	self.firingTimer = Weapons.Plasma.FireRate
 end

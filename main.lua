@@ -23,16 +23,16 @@ print("display scale is: "..scale)
 
 function love.load()
 	Signal.clearPattern(".*")
-	if arg[#arg] == "-debug" then require("mobdebug").start() end
-  
+  	
 	local crosshair = Image['crosshair.png']
-	cursor = love.mouse.newCursor(crosshair:getData(), crosshair:getWidth()/2, crosshair:getHeight()/2)
+	local cursor = love.mouse.newCursor(crosshair:getData(), crosshair:getWidth()/2, crosshair:getHeight()/2)
 	love.mouse.setCursor(cursor)
 
 	game.over = false
 	game.paused = false
 
 	game.gfx.initialize()
+	
 	game.sound.start()
 	game.sound.register()
 
@@ -48,15 +48,15 @@ function love.load()
 	modifiers = Modifiers()
 
 	gibs = GibsSystem()
-	bulletSystem = BulletSystem()
+	bullets = BulletSystem()
 
 	collisionResolver = CollisionResolver()
 
 	camera = Camera(player.position.x, player.position.y)
 	camera:zoomTo(scale)
 
-	drawables = { enemies, modifiers, gibs, bulletSystem, player }
-	updateables = { enemies, gibs, bulletSystem, player }
+	drawables = { enemies, modifiers, gibs, bullets, player }
+	updateables = { enemies, gibs, bullets, player }
 end
 
 -- provide custom run for physics timestepping for now. 
@@ -115,7 +115,6 @@ function love.update(dt)
 
 	game.gfx.update(dt)
 	game.sound.update(dt)
-
 	scoreboard:update(dt)
 
 	if not game.over and not game.paused then
@@ -144,7 +143,7 @@ end
 function check_collisions()
 	local t1 = love.timer.getTime()
 
-	bulletSystem:check_collisions()
+	bullets:check_collisions()
 	player:check_collisions()
 
 	if player:is_dead() then
@@ -180,25 +179,23 @@ function love.joystickaxis(stick, axis, value)
 end
 
 function love.draw()
-	game.gfx.fx:draw(
-		function()
-			if not game.over and not game.paused then
-				draw_game()
+	game.gfx.fx:draw(function()
+		if not game.over and not game.paused then
+			draw_game()
 
-			elseif game.paused and not game.over then
-				love.graphics.setFont(Font[20])
-				love.graphics.print("PAUSED", 100, 100)
+		elseif game.paused and not game.over then
+			love.graphics.setFont(Font[20])
+			love.graphics.print("PAUSED", 100, 100)
 
-			else
-				love.graphics.setFont(Font[40])
-				love.graphics.print("GAME OVER!", 100, 100)
+		else
+			love.graphics.setFont(Font[40])
+			love.graphics.print("GAME OVER!", 100, 100)
 
-				love.graphics.setFont(Font[20])
-				love.graphics.print("YOU SCORED: "..scoreboard.score, 100, 150)
-				love.graphics.print("PRESS 'R' TO RESTART.", 100, 180)
-			end
+			love.graphics.setFont(Font[20])
+			love.graphics.print("YOU SCORED: "..scoreboard.score, 100, 150)
+			love.graphics.print("PRESS 'R' TO RESTART.", 100, 180)
 		end
-	)
+	end)
 end
 
 function draw_game()

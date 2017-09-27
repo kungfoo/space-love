@@ -28,6 +28,14 @@ function game.toggle_pause()
 	game.paused = not game.paused
 end
 
+function game.running_on_desktop()
+	return not game.running_on_mobile()
+end
+
+function game.running_on_mobile()
+	return love.system.getOS() == 'iOS' or love.system.getOS() == 'Android'
+end
+
 require("game.scoreboard")
 require("game.world")
 require("game.collision_resolver")
