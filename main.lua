@@ -10,7 +10,6 @@ Signal = require("lib.hump.signal")
 Class = require("lib.hump.class")
 Camera = require("lib.hump.camera")
 Vector = require("lib.hump.vector")
-HC = require("lib.HC")
 
 inspect = require("lib.inspect.inspect")
 tick = require("lib.tick.tick")
