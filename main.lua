@@ -86,11 +86,12 @@ function love.update(dt)
 	scoreboard:update(dt)
 
 	if not game.over and not game.paused then
-		
-		update_objects(dt)
 
-		modifiers:apply(player)
-		check_collisions()
+		update_objects(dt)
+		
+		if player:is_dead() then
+			game.over = true
+		end
 
 		camera:lockPosition(player.position.x, player.position.y, Camera.smooth.damped(3))
 	else
@@ -106,20 +107,6 @@ function update_objects(dt)
 	local t2 = love.timer.getTime()
 
 	time_update = (t2-t1) * 1000
-end
-
-function check_collisions()
-	local t1 = love.timer.getTime()
-
-	bullets:check_collisions()
-	player:check_collisions()
-
-	if player:is_dead() then
-		game.over = true
-	end
-	
-	local t2 = love.timer.getTime()
-	time_collisions = (t2-t1) * 1000
 end
 
 function love.focus(focused)

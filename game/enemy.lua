@@ -21,23 +21,12 @@ function Enemy:init(position)
 	local xc = position.x + self.width/2
 	local yc = position.y + self.height/2
 
-	self.hc_object = HC.rectangle(xc, yc, self.width, self.height)
-	self.hc_object.game_object = self
-	self.hc_object.layer = CollisionLayers.Physics
-
-	self.hc_circle_of_vision = HC.circle(xc, yc, self.flocking_radius)
-	self.hc_circle_of_vision.game_object = self
-	self.hc_circle_of_vision.layer = CollisionLayers.Vision
+	-- TODO: create bump world object
 end
 
 function Enemy:draw()
 	love.graphics.setColor(self:color())
 	love.graphics.rectangle("fill", self.position.x, self.position.y, self.width, self.height)
-
-	if game.show_debug then
-		love.graphics.setColor(0, 200, 0, 64)
-		self.hc_circle_of_vision:draw()
-	end
 end
 
 function Enemy:color()
@@ -47,16 +36,20 @@ function Enemy:color()
 	return game.colors.hsl(hue, 50, 50, alpha)
 end
 
+function Enemy:destroy()
+	-- TODO: remove from bump world
+end
+
 function Enemy:update(dt)
 	self.position = self.position + self.velocity * dt
 
 	local xc = self.position.x + self.width/2
 	local yc = self.position.y + self.height/2
-	self.hc_object:moveTo(xc, yc)
-	self.hc_circle_of_vision:moveTo(xc, yc)
-	
+	-- TODO: move collision object
+
 	if self.state == 'flocking' then
-		local visible_objects = HC.collisions(self.hc_circle_of_vision	)
+
+		-- TODO: figure out others within range
 
 		local alignment = Vector()
 		local cohesion = Vector()
@@ -77,7 +70,7 @@ function Enemy:update(dt)
 		separation:normalizeInplace()
 		alignment:normalizeInplace()
 		cohesion:normalizeInplace()
-		-- print(string.format("separation: \t%s, alignment: \t%s, cohesion: \t%s", separation, alignment, cohesion))
+
 		self.velocity = self.velocity + separation + alignment + cohesion
 	end
 
@@ -90,6 +83,7 @@ end
 
 function Enemy:hit(bullet)
 	self.health = self.health - bullet.damage
+	
 	-- vollkommen elastischer stoss:
 	self.velocity = ((self.mass - bullet.mass) * self.velocity + 2 * bullet.mass * bullet.velocity) / (self.mass + bullet.mass)
 	

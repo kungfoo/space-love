@@ -11,8 +11,8 @@ function Player:init()
 	-- initial position
 
 	self.position = Vector(math.random(200, world.width - 200), math.random(200, world.height - 200))
-	self.hc_object = HC.circle(self.position.x, self.position.y, self.radius)
-	self.hc_object.game_object = self
+	
+	-- TODO: create bump world object
 
 	self.velocity = Vector(0,0)
 	
@@ -57,14 +57,11 @@ function Player:move(dt)
 		self.velocity = self.velocity * math.pow(self.friction, dt)
 	end
 
-	-- this will yield problems, when both keyboard and gamepad are used.
---	self.x = game.math.clamp(self.x + self.stickx * (self.acceleration * dt), 0, world.width)
---	self.y = game.math.clamp(self.y + self.sticky * (self.acceleration * dt), 0, world.height)
-
 	self.velocity:trimInplace(self.max_velocity)
 
 	self.position = self.position + self.velocity * dt
-	self.hc_object:moveTo(self.position:unpack())
+	
+	-- TODO: move bump world object
 
 	local fire = love.keyboard.isDown('space') or self.firing
 	if fire and self.r_stick:len() > 0.25 then
@@ -131,18 +128,13 @@ function Player:update(dt)
 	self:move(dt)
 end
 
-function Player:check_collisions()
-	local collisions = HC.collisions(self.hc_object)
-	local physics_collisions = CollisionLayers.filter(collisions, CollisionLayers.Physics)
-
-	for other, separating_vector in pairs(physics_collisions) do
-		Signal.emit("collision", self, other.game_object, separating_vector)
-	end
-end
-
 function Player:hit()
 	self.health = self.health - 100
 	Signal.emit("player-hit")
+end
+
+function Player:destroy()
+	-- TODO: remove from bump world
 end
 
 function Player:is_dead()

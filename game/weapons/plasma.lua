@@ -72,9 +72,11 @@ function Bullet:init(velocity, position)
 	self.ttl = self.max_ttl
 	self.hue = math.random(self.hue_start, self.hue_end)
 
-	self.hc_object = HC.circle(self.position.x, self.position.y, self.radius)
-	self.hc_object.game_object = self
-	self.hc_object.layer = CollisionLayers.Physics
+	-- TODO: create bump world object
+end
+
+function Bullet:destroy()
+	-- TODO: remove from bump world
 end
 
 function Bullet:draw()
@@ -84,7 +86,7 @@ end
 
 function Bullet:update(dt)
 	self.position = self.position + self.velocity * dt
-	self.hc_object:moveTo(self.position:unpack())
+	-- TODO: update bump world object
 end
 
 function Bullet:is_offscreen()
