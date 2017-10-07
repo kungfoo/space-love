@@ -18,3 +18,6 @@
 - more weapons? infinite ammo?
 - immediate mode ui for debugging/tweaking?
 
+- registry of objects with uuid as the table key
+- active pause and select elements with the mouse, print uuid, use lovebird to hack into these objects
+

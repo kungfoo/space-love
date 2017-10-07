@@ -10,9 +10,6 @@ game = {
 	over = false
 }
 
-require("game.sound")
-require("gfx.post")
-
 function game.check_collision(x1, y1, w1, h1, x2, y2, w2, h2)
 	return 	x1 < x2+w2 and
 			x2 < x1+w1 and
@@ -36,6 +33,12 @@ function game.running_on_mobile()
 	return love.system.getOS() == 'iOS' or love.system.getOS() == 'Android'
 end
 
+
+require("gfx.post")
+
+require("game.objects")
+require("game.collision_layers")
+require("game.sound")
 require("game.scoreboard")
 require("game.world")
 require("game.collision_resolver")

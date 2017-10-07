@@ -7,8 +7,8 @@ function love.conf(t)
 	t.window.width = 1920
 	t.window.height = 1080
 
-	t.window.vsync = false
-	t.window.msaa = 4
+	t.window.vsync = true
+	t.window.msaa = 2
 	t.window.highdrpi = false
 
 	t.window.fullscreen = false

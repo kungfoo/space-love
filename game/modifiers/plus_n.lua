@@ -18,10 +18,10 @@ function Modifiers.PlusN:init()
 end
 
 function Modifiers.PlusN:draw()
-	love.graphics.setColor(255,255,255,255)
-	love.graphics.circle("line", self.position.x, self.position.y, self.radius)
-	love.graphics.setFont(Font[20])
-	love.graphics.print("+"..self.n, self.position.x-15, self.position.y-10)
+	lg.setColor(255,255,255,255)
+	lg.circle("line", self.position.x, self.position.y, self.radius)
+	lg.setFont(Font[20])
+	lg.print("+"..self.n, self.position.x-15, self.position.y-10)
 end
 
 function Modifiers.PlusN:dist(a, b)

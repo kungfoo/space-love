@@ -1,12 +1,24 @@
+require('socket')
 
+-- hot code swap and brower debug console. awesome.
+lovebird = require("lib.lovebird.lovebird")
+lurker = require("lib.lurker.lurker")
+lume = require("lib.lurker.lume")
+
+-- actual libs
 Signal = require("lib.hump.signal")
 Class = require("lib.hump.class")
 Camera = require("lib.hump.camera")
 Vector = require("lib.hump.vector")
-
 HC = require("lib.HC")
 
 inspect = require("lib.inspect.inspect")
+tick = require("lib.tick.tick")
+
+uuid = require("lib.uuid")
+uuid.seed()
+
+lg = love.graphics
 
 game = {}
 
@@ -23,6 +35,10 @@ print("display scale is: "..scale)
 
 function love.load()
 	Signal.clearPattern(".*")
+
+	-- setup fixed timestepping
+	tick.framerate = 60
+	tick.rate = 0.016666
   	
 	local crosshair = Image['crosshair.png']
 	local cursor = love.mouse.newCursor(crosshair:getData(), crosshair:getWidth()/2, crosshair:getHeight()/2)
@@ -59,57 +75,10 @@ function love.load()
 	updateables = { enemies, gibs, bullets, player }
 end
 
--- provide custom run for physics timestepping for now. 
-function love.run()
- 
-	if love.math then
-		love.math.setRandomSeed(os.time())
-	end
- 
-	if love.load then love.load(arg) end
- 
-	-- We don't want the first frame's dt to include time taken by love.load.
-	if love.timer then love.timer.step() end
- 
-	local dt = 0
- 
-	-- Main loop time.
-	while true do
-		-- Process events.
-		if love.event then
-			love.event.pump()
-			for name, a,b,c,d,e,f in love.event.poll() do
-				if name == "quit" then
-					if not love.quit or not love.quit() then
-						return a
-					end
-				end
-				love.handlers[name](a,b,c,d,e,f)
-			end
-		end
- 
-		-- Update dt, as we'll be passing it to update
-		if love.timer then
-			love.timer.step()
-			-- at most, simulate 1/60 of a second
-			dt = math.min(love.timer.getDelta(), 0.016666)
-		end
- 
-		-- Call update and draw
-		if love.update then love.update(dt) end -- will pass 0 if love.timer is disabled
- 
-		if love.graphics and love.graphics.isActive() then
-			love.graphics.clear(love.graphics.getBackgroundColor())
-			love.graphics.origin()
-			if love.draw then love.draw() end
-			love.graphics.present()
-		end
- 
-		if love.timer then love.timer.sleep(0.002) end
-	end
-end
-
 function love.update(dt)
+
+	lovebird.update()
+	lurker.update()
 
 	love.graphics.setBackgroundColor(60, 60, 60)
 
@@ -154,12 +123,8 @@ function check_collisions()
 	time_collisions = (t2-t1) * 1000
 end
 
-function love.focus(f)
-	if not f then
-		game.paused = true
-	else
-		game.paused = false
-	end
+function love.focus(focused)
+	game.paused = not focused
 end
 
 function love.joystickpressed(stick, button)
@@ -213,6 +178,9 @@ function draw_game()
 		love.graphics.setFont(Font[15])
 		love.graphics.setColor(255, 255, 255)
 		love.graphics.printf(stats, 10, love.graphics.getHeight() - 20, love.graphics.getWidth(), "left")
+
+		local camera_stats = string.format("camera: centroid: (%d, %d)", camera:position())
+		love.graphics.printf(camera_stats, -10, love.graphics.getHeight() - 20, love.graphics.getWidth(), "right")
 	end
 	local t2 = love.timer.getTime()
 	time_draw = (t2 - t1) * 1000

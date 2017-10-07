@@ -68,25 +68,23 @@ end
 
 function Bullet:init(velocity, position)
 	self.position = position:clone()
-	self.hc_object = HC.circle(self.position.x, self.position.y, self.radius)
-	self.hc_object.game_object = self
-
 	self.velocity = velocity
 	self.ttl = self.max_ttl
-
 	self.hue = math.random(self.hue_start, self.hue_end)
+
+	self.hc_object = HC.circle(self.position.x, self.position.y, self.radius)
+	self.hc_object.game_object = self
+	self.hc_object.layer = CollisionLayers.Physics
 end
 
 function Bullet:draw()
-	love.graphics.setColor(game.colors.hsl(self.hue, 100, 50))
-	love.graphics.circle("fill", self.position.x, self.position.y, self.radius)
+	lg.setColor(game.colors.hsl(self.hue, 100, 50))
+	lg.circle("fill", self.position.x, self.position.y, self.radius)
 end
 
 function Bullet:update(dt)
 	self.position = self.position + self.velocity * dt
 	self.hc_object:moveTo(self.position:unpack())
-	-- time out bullets after quite some flying around...
-	-- self.ttl = self.ttl - 2.5 * dt
 end
 
 function Bullet:is_offscreen()
@@ -140,8 +138,8 @@ function Bullet.Gibs.Particle:init(x, y)
 end
 
 function Bullet.Gibs.Particle:draw(timer_scaled)
-	love.graphics.setColor(game.colors.hsl(self.hue, 100, 50, timer_scaled * 255))
-	love.graphics.rectangle("fill", self.x, self.y, timer_scaled * 5, timer_scaled * 5)
+	lg.setColor(game.colors.hsl(self.hue, 100, 50, timer_scaled * 255))
+	lg.rectangle("fill", self.x, self.y, timer_scaled * 5, timer_scaled * 5)
 end
 
 function Bullet.Gibs.Particle:update(dt)

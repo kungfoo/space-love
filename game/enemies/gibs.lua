@@ -19,7 +19,7 @@ function Enemies.Gibs:create_particles(x, y)
 		table.insert(p, Enemies.Gibs.Particle(x, y, Enemies.Gibs.Particle.initial_speed))
 	end
 
-	for i = 1, math.random(6, 16) do
+	for i = 1, math.random(6, 24) do
 		table.insert(p, Enemies.Gibs.Particle(x, y,  Enemies.Gibs.Particle.initial_speed * 3))
 	end
 
@@ -51,8 +51,8 @@ function Enemies.Gibs.Particle:init(x, y, speed)
 end
 
 function Enemies.Gibs.Particle:draw(timer_scaled)
-	love.graphics.setColor(game.colors.hsl(self.hue, 80, 50, timer_scaled * 255))
-	love.graphics.rectangle("fill", self.position.x, self.position.y, timer_scaled * 10, timer_scaled * 10)
+	lg.setColor(game.colors.hsl(self.hue, 80, 50, timer_scaled * 255))
+	lg.rectangle("fill", self.position.x, self.position.y, timer_scaled * 10, timer_scaled * 10)
 end
 
 function Enemies.Gibs.Particle:update(dt)

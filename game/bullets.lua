@@ -31,7 +31,8 @@ end
 
 function BulletSystem:check_collisions()
 	for b, _ in pairs(self.bullets) do
-		for other, separating_vector in pairs(HC.collisions(b.hc_object)) do
+		local physics_collisions = CollisionLayers.filter(HC.collisions(b.hc_object), CollisionLayers.Physics)
+		for other, separating_vector in pairs(physics_collisions) do
 			Signal.emit("collision", b, other.game_object, separating_vector)
 		end
 	end

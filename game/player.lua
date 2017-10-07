@@ -132,7 +132,10 @@ function Player:update(dt)
 end
 
 function Player:check_collisions()
-	for other, separating_vector in pairs(HC.collisions(self.hc_object)) do
+	local collisions = HC.collisions(self.hc_object)
+	local physics_collisions = CollisionLayers.filter(collisions, CollisionLayers.Physics)
+
+	for other, separating_vector in pairs(physics_collisions) do
 		Signal.emit("collision", self, other.game_object, separating_vector)
 	end
 end

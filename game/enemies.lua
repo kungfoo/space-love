@@ -41,6 +41,8 @@ end
 
 function Enemies:remove(enemy)
 	self.enemies[enemy] = nil
+
 	HC.remove(enemy.hc_object)
+	HC.remove(enemy.hc_circle_of_vision)
 end
 
