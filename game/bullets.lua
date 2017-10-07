@@ -1,7 +1,7 @@
 
 BulletSystem = Class {}
 
-function BulletSystem:init()
+function BulletSystem:init(bump)
 	self.bullets = {}
 end
 
@@ -17,6 +17,11 @@ function BulletSystem:update(dt)
 			b:destroy()
 		end
 	end	
+end
+
+function BulletSystem:remove(bullet)
+	self.bullets[bullet] = nil
+	bullet:destroy()
 end
 
 function BulletSystem:draw()

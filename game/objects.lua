@@ -3,16 +3,16 @@
 GameObject = Class {
 }
 
-function GameObject:init(position)
+function GameObject:init(bump, left, top, width, height)
+	self.bump = bump
 	self.uuid = uuid()
-	self.position = position:clone()
+	self.bump:add(self, left, top, width, height)
+	self.created_at = love.timer.getTime()
 end
 
-Snapple = Class {
-	__includes = GameObject,
-	type = 'snapple'
-}
-
-function Snapple:init(position)
-	GameObject.init(self, position)
+function GameObject:destroy()
+	if game.debug then
+		print(string.format("%s:%s created at %s has been destroyed", self.type, self.uuid, self.created_at))
+	end
+	self.bump:remove(self)
 end

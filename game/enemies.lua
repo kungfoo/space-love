@@ -3,7 +3,7 @@ Enemies = Class { }
 require("game.enemy")
 require("game.enemies.gibs")
 
-function Enemies:init()
+function Enemies:init(bump)
 	self.level = 0.2
 	self.kills = 0
 
@@ -13,13 +13,13 @@ function Enemies:init()
 		gibs:insert(Enemies.Gibs(position.x, position.y))
 	end)
 
-	self:spawn_random_enemies(500)
+	self:spawn_random_enemies(bump, 500)
 end
 
-function Enemies:spawn_random_enemies(n)
+function Enemies:spawn_random_enemies(bump, n)
 	for i = 0, n do
 		local position = Vector(math.random(100, world.width-100), math.random(100, world.height-100))
-		self.enemies[Enemy(position)] = true
+		self.enemies[Enemy(bump, position)] = true
 	end
 end
 
@@ -40,7 +40,7 @@ function Enemies:draw()
 end
 
 function Enemies:remove(enemy)
-	self.enemies[enemy]:destroy()
 	self.enemies[enemy] = nil
+	enemy:destroy()
 end
 

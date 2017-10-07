@@ -16,3 +16,6 @@
 [submodule "lib/tick"]
 	path = lib/tick
 	url = git@github.com:bjornbytes/tick.git
+[submodule "lib/bump"]
+	path = lib/bump
+	url = git@github.com:kikito/bump.lua.git

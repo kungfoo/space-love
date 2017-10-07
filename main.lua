@@ -11,6 +11,9 @@ Class = require("lib.hump.class")
 Camera = require("lib.hump.camera")
 Vector = require("lib.hump.vector")
 
+Bump = require("lib.bump.bump")
+bump_debug = require("lib.bump_debug")
+
 inspect = require("lib.inspect.inspect")
 tick = require("lib.tick.tick")
 
@@ -33,6 +36,7 @@ local scale = math.min(scale_x, scale_y)
 print("display scale is: "..scale)
 
 function love.load()
+	bump = Bump.newWorld(64)
 	Signal.clearPattern(".*")
 
 	-- setup fixed timestepping
@@ -57,17 +61,17 @@ function love.load()
 
 	world = World()
 
-	player = Player()
-	enemies = Enemies()
+	player = Player(bump)
+	enemies = Enemies(bump)
 	scoreboard = Scoreboard()
 	modifiers = Modifiers()
 
 	gibs = GibsSystem()
-	bullets = BulletSystem()
+	bullets = BulletSystem(bump)
 
 	collisionResolver = CollisionResolver()
 
-	camera = Camera(player.position.x, player.position.y)
+	camera = Camera(player.position.x, player.position.y, Camera.smooth.damped(3))
 	camera:zoomTo(scale)
 
 	drawables = { enemies, modifiers, gibs, bullets, player }
@@ -93,7 +97,7 @@ function love.update(dt)
 			game.over = true
 		end
 
-		camera:lockPosition(player.position.x, player.position.y, Camera.smooth.damped(3))
+		camera:lockPosition(player.position.x, player.position.y)
 	else
 		-- update nothing
 	end
@@ -151,15 +155,14 @@ end
 
 function draw_game()
 	local t1 = love.timer.getTime()
-	camera:draw(draw_grid)
-	camera:draw(draw_objects)
+	draw_with_camera()
 
 	scoreboard:draw()
 
 	if game.show_debug then
 		local fps = love.timer.getFPS()
 		local mem = collectgarbage("count")
-		local stats = ("cols: %.2fms, upd: %.2fms, drw: %.2fms, fps: %d, mem: %.2fMB, tex_mem: %.2f MB"):format(time_collisions, time_update, time_draw, fps, mem / 1024, love.graphics.getStats().texturememory / 1024 / 1024)
+		local stats = ("obj: %d, upd: %.2fms, drw: %.2fms, fps: %d, mem: %.2fMB, tex_mem: %.2f MB"):format(bump:countItems(), time_update, time_draw, fps, mem / 1024, love.graphics.getStats().texturememory / 1024 / 1024)
 
 		love.graphics.setFont(Font[15])
 		love.graphics.setColor(255, 255, 255)
@@ -170,6 +173,15 @@ function draw_game()
 	end
 	local t2 = love.timer.getTime()
 	time_draw = (t2 - t1) * 1000
+end
+
+function draw_with_camera()
+	camera:draw(draw_grid)
+	if game.show_debug then
+		camera:draw(draw_bump_debug)
+	end
+
+	camera:draw(draw_objects)
 end
 
 function draw_grid()
@@ -190,9 +202,14 @@ function draw_grid()
 end
 
 function draw_objects()
+	-- TODO: use bump to only draw what is visible.
 	for i, object in ipairs(drawables) do
 		object:draw()
 	end
+end
+
+function draw_bump_debug()
+	bump_debug.draw(bump)
 end
 
 function love.keypressed(k)

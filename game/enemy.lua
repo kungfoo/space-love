@@ -1,6 +1,7 @@
 
 Enemy = Class {
 	type = 'enemy',
+	__includes = GameObject,
 	width = 20,
 	height = 20,
 	slow_down = 20,
@@ -13,15 +14,19 @@ Enemy = Class {
 	state = 'not-flocking'
 }
 
-function Enemy:init(position)
+function Enemy:init(bump, position)
+	GameObject.init(self, bump, position.x, position.y, self.width, self.height)
+
 	self.position = position
 	self.health = math.random(30, 110)
 	self.velocity = Vector(0, 0)
+end
 
-	local xc = position.x + self.width/2
-	local yc = position.y + self.height/2
-
-	-- TODO: create bump world object
+function Enemy:filter(other)
+	local type = other.type
+	if type == self.type then
+		return 'bounce'
+	end
 end
 
 function Enemy:draw()
@@ -36,16 +41,16 @@ function Enemy:color()
 	return game.colors.hsl(hue, 50, 50, alpha)
 end
 
-function Enemy:destroy()
-	-- TODO: remove from bump world
-end
-
 function Enemy:update(dt)
-	self.position = self.position + self.velocity * dt
 
-	local xc = self.position.x + self.width/2
-	local yc = self.position.y + self.height/2
-	-- TODO: move collision object
+	local future_position = self.position + self.velocity * dt
+	local next_left, next_top, collisions, len = self.bump:move(self, future_position.x, future_position.y, self.filter)
+
+	for i=1,len do
+		-- TODO: deal with collisions here...
+	end
+
+	self.position = Vector(next_left, next_top)
 
 	if self.state == 'flocking' then
 

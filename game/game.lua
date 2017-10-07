@@ -4,6 +4,7 @@ Game = {}
 
 game = {
 	show_debug = false,
+	debug = false,
 	sound = {},
 	gfx = {},
 
@@ -19,6 +20,7 @@ end
 
 function game.toggle_debug()
 	game.show_debug = not game.show_debug
+	game.debug = not game.debug
 end
 
 function game.toggle_pause()

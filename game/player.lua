@@ -1,5 +1,6 @@
 Player = Class {
 	type = 'player',
+	__includes = GameObject,
 	max_health = 500,
 	max_velocity = 400,
 	acceleration = 1000,
@@ -7,12 +8,12 @@ Player = Class {
 	radius = 10
 }
 
-function Player:init()
+function Player:init(bump)
 	-- initial position
-
 	self.position = Vector(math.random(200, world.width - 200), math.random(200, world.height - 200))
-	
-	-- TODO: create bump world object
+
+	local left, top, width, height = self.position.x - Player.radius, self.position.y - Player.radius, 2 * Player.radius, 2 * Player.radius
+	GameObject.init(self, bump, left, top, width, height)
 
 	self.velocity = Vector(0,0)
 	
@@ -28,7 +29,7 @@ function Player:init()
 	self.r_stick = Vector(0,0)
 
 	-- start out with plasma gun
-	self.weapon = Weapons.Plasma()
+	self.weapon = Weapons.Plasma(bump)
 end
 
 function Player:move(dt)
@@ -59,13 +60,27 @@ function Player:move(dt)
 
 	self.velocity:trimInplace(self.max_velocity)
 
-	self.position = self.position + self.velocity * dt
+	local future_position = self.position + self.velocity * dt
 	
-	-- TODO: move bump world object
+	-- TODO: deal with filtered collisions
+	local next_left, next_top, collisions, len = self.bump:move(self, future_position.x - self.radius, future_position.y - self.radius, self.filter)
+	for i=1,len do
+		local other = collisions[i].other
+		Signal.emit("collision", self, other)
+	end
+
+	self.position = Vector(next_left + self.radius, next_top + self.radius)
 
 	local fire = love.keyboard.isDown('space') or self.firing
 	if fire and self.r_stick:len() > 0.25 then
 		self.weapon:trigger(self.velocity, self.position, self.r_stick)
+	end
+end
+
+function Player:filter(other)
+	local type = other.type
+	if type == 'enemy' then
+		return 'touch'
 	end
 end
 
@@ -133,9 +148,9 @@ function Player:hit()
 	Signal.emit("player-hit")
 end
 
-function Player:destroy()
-	-- TODO: remove from bump world
-end
+-- function Player:destroy()
+-- 	-- TODO: remove from bump world
+-- end
 
 function Player:is_dead()
 	return self.health <= 0

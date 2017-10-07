@@ -7,6 +7,7 @@ Weapons.Plasma = Class {
 }
 
 Bullet = Class {
+	__includes = GameObject,
 	type = 'bullet',
 	hue_start = 290, -- pinkish
 	hue_end = 319,
@@ -25,7 +26,8 @@ Bullet.Gibs.Particle = Class {
 	max_ttl = 0.8
 }
 
-function Weapons.Plasma:init()
+function Weapons.Plasma:init(bump)
+	self.bump = bump
 	self.firingTimer = Weapons.Plasma.FireRate
 	self.bulletsPerShot = Weapons.Plasma.BulletsPerShot
 end
@@ -57,8 +59,7 @@ function Weapons.Plasma:fire_bullet(player_velocity, position, aim)
 	aimz = aimz + spread
 
 	local velocity = (aimz:normalized() * Bullet.speed) + player_velocity
-
-	local bullet = Bullet(velocity, position)
+	local bullet = Bullet(self.bump, velocity, position)
 	
 	bullets:insert(bullet)
 	self.canFire = false
@@ -66,17 +67,22 @@ function Weapons.Plasma:fire_bullet(player_velocity, position, aim)
 end
 
 
-function Bullet:init(velocity, position)
-	self.position = position:clone()
+function Bullet:init(bump, velocity, position)
+	local left, top = position.x - self.radius, position.y - self.radius
+	GameObject.init(self, bump, left, top, self.radius*2, self.radius*2)
+
+	self.position = position
 	self.velocity = velocity
 	self.ttl = self.max_ttl
 	self.hue = math.random(self.hue_start, self.hue_end)
-
-	-- TODO: create bump world object
 end
 
-function Bullet:destroy()
-	-- TODO: remove from bump world
+function Bullet:filter(other)
+	local type = other.type
+	if other.type == Enemy.type then
+		return 'touch'
+	end
+	return nil
 end
 
 function Bullet:draw()
@@ -85,8 +91,14 @@ function Bullet:draw()
 end
 
 function Bullet:update(dt)
-	self.position = self.position + self.velocity * dt
-	-- TODO: update bump world object
+	local future_position = self.position + self.velocity * dt
+	local left, top = future_position.x - self.radius, future_position.y - self.radius
+	
+	local next_left, next_top, collisions, len = self.bump:move(self, left, top, self.filter)
+	for i=1,len do
+		Signal.emit("collision", self, collisions[i].other)
+	end
+	self.position = Vector(next_left + self.radius, next_top + self.radius)
 end
 
 function Bullet:is_offscreen()
