@@ -218,5 +218,12 @@ function love.keypressed(k)
 	if k == "delete" then collectgarbage("collect") end
 	if k == "pause" then game.toggle_pause() end
 	if k == "r" then love.load() end
+	if k == "f1" then
+		if tick.timescale == 1 then
+			tick.timescale = 0.5
+		else
+			tick.timescale = 1
+		end
+	end
 end
 

@@ -88,6 +88,11 @@ end
 function Bullet:draw()
 	lg.setColor(game.colors.hsl(self.hue, 100, 50))
 	lg.circle("fill", self.position.x, self.position.y, self.radius)
+
+	if game.show_debug then
+		lg.setColor(180, 0, 0, 128)
+		lg.rectangle("line", self.position.x - self.radius, self.position.y - self.radius, self.radius*2, self.radius*2)
+	end
 end
 
 function Bullet:update(dt)

@@ -10,8 +10,8 @@ Enemy = Class {
 	mass = 100,
 	friction = 1/100,
 
-	flocking_radius = 100,
-	state = 'not-flocking'
+	flocking_radius = 200,
+	state = 'flocking'
 }
 
 function Enemy:init(bump, position)
@@ -22,10 +22,18 @@ function Enemy:init(bump, position)
 	self.velocity = Vector(0, 0)
 end
 
-function Enemy:filter(other)
+function Enemy.filter(other)
 	local type = other.type
-	if type == self.type then
+	if type == Enemy.type then
 		return 'bounce'
+	end
+end
+
+function Enemy.flocking_filter(other)
+	if other.type == Enemy.type then
+		return 'flock'
+	else
+		return nil
 	end
 end
 
@@ -43,34 +51,27 @@ end
 
 function Enemy:update(dt)
 
-	local future_position = self.position + self.velocity * dt
-	local next_left, next_top, collisions, len = self.bump:move(self, future_position.x, future_position.y, self.filter)
-
-	for i=1,len do
-		-- TODO: deal with collisions here...
-	end
-
-	self.position = Vector(next_left, next_top)
-
 	if self.state == 'flocking' then
-
-		-- TODO: figure out others within range
+		local others, len = bump:queryRect(self.position.x, self.position.y, self.flocking_radius, self.flocking_radius, Enemy.flocking_filter)
 
 		local alignment = Vector()
 		local cohesion = Vector()
 		local separation = Vector()
 
-		local count = 0
-		for object, separating_vector in pairs(visible_objects) do
-			if object.type == 'enemy' then
-				alignment = alignment + object.velocity
-				cohesion = cohesion + object.position
-				separation = separation + (object.position - self.position)
-
-				count = count + 1
-			end
+		for i=1, len do
+			local other = others[i]
+			alignment = alignment + other.velocity
+			cohesion = cohesion + other.position
+			separation = separation + (other.position - self.position)
 		end
+
+		cohesion = cohesion/len
+		cohesion = cohesion - self.position
+
+		alignment = alignment/len
+
 		separation = separation * -1
+		separation = separation/len
 		
 		separation:normalizeInplace()
 		alignment:normalizeInplace()
@@ -78,6 +79,15 @@ function Enemy:update(dt)
 
 		self.velocity = self.velocity + separation + alignment + cohesion
 	end
+
+	local future_position = self.position + self.velocity * dt
+	local next_left, next_top, collisions, len = self.bump:move(self, future_position.x, future_position.y, Enemy.filter)
+
+	for i=1,len do
+		-- TODO: deal with collisions here...
+	end
+
+	self.position = Vector(next_left, next_top)
 
 	self.velocity = self.velocity * math.pow(self.friction, dt)
 end
