@@ -23,7 +23,8 @@ Bullet = Class {
 Bullet.Gibs = Class {}
 Bullet.Gibs.Particle = Class {
 	min_ttl = 0.4,
-	max_ttl = 0.8
+	max_ttl = 0.8,
+	initial_speed = 400
 }
 
 function Weapons.Plasma:init(bump)
@@ -115,59 +116,53 @@ function Bullet:hit()
 end
 
 function Bullet.Gibs:init(position)
-	self.ttl = math.random(Bullet.Gibs.Particle.min_ttl, Bullet.Gibs.Particle.max_ttl)
-	self.ttl_timer = self.ttl
-	self.particles = self:create_particles(position:unpack())
+	local ttl = math.random(Bullet.Gibs.Particle.min_ttl, Bullet.Gibs.Particle.max_ttl)
+	self.particles = self:create_particles(position.x, position.y, ttl)
 end
 
-function Bullet.Gibs:create_particles(x, y)
+function Bullet.Gibs:create_particles(x, y, ttl)
 	local p = {}
 	for i = 1, math.random(12, 16) do
-		table.insert(p, Bullet.Gibs.Particle(x, y))
+		table.insert(p, Bullet.Gibs.Particle(x, y, ttl))
 	end
 	return p
-end
-
-function Bullet.Gibs:draw()
-	for _, particle in ipairs(self.particles) do
-		particle:draw(self.ttl_timer / self.ttl)
-	end
 end
 
 function Bullet.Gibs:update(dt)
 	for _, particle in ipairs(self.particles) do
 		particle:update(dt)
 	end
-	self.ttl_timer = self.ttl_timer - 2 * dt
 end
 
 function Bullet.Gibs:is_alive()
-	return self.ttl_timer > 0
+	return self.particles[1].ttl_timer > 0
 end
 
+function Bullet.Gibs:destroy()
+	for _, particle in ipairs(self.particles) do
+		bump:remove(particle)
+	end
+end
 
-function Bullet.Gibs.Particle:init(x, y)
-	local initial_speed = 400
-
-	self.x = x
-	self.y = y
-
+function Bullet.Gibs.Particle:init(x, y, ttl)
+	self.position = Vector(x,y)
+	self.ttl, self.ttl_timer = ttl, ttl
 	self.hue = math.random(Bullet.hue_start, Bullet.hue_end)
-	self.vm = { math.random(-initial_speed, initial_speed), math.random(-initial_speed, initial_speed) }
+	
+	bump:add(self, self.position.x, self.position.y, 5, 5)
+	self.velocity = Vector(math.random(-self.initial_speed, self.initial_speed), math.random(-self.initial_speed, self.initial_speed))
 end
 
-function Bullet.Gibs.Particle:draw(timer_scaled)
+function Bullet.Gibs.Particle:draw()
+	local timer_scaled = self.ttl_timer / self.ttl
 	lg.setColor(game.colors.hsl(self.hue, 100, 50, timer_scaled * 255))
-	lg.rectangle("fill", self.x, self.y, timer_scaled * 5, timer_scaled * 5)
+	lg.rectangle("fill", self.position.x, self.position.y, timer_scaled * 5, timer_scaled * 5)
 end
 
 function Bullet.Gibs.Particle:update(dt)
-	-- update position
-	self.x = self.x + dt * self.vm[1]
-	self.y = self.y + dt * self.vm[2]
-
-	-- slow down
-	self.vm[1] = self.vm[1] + (dt * (-self.vm[1]))
-	self.vm[2] = self.vm[2] + (dt * (-self.vm[2]))
+	self.ttl_timer = self.ttl_timer - 2 * dt
+	self.position = self.position + dt * self.velocity
+	bump:move(self, self.position.x, self.position.y, nil)
+	self.velocity = self.velocity + (dt * -self.velocity)
 end
 

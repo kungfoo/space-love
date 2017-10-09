@@ -3,7 +3,7 @@ math.randomseed(os.time())
 Game = {}
 
 game = {
-	show_debug = false,
+	debug_level = 'none',
 	debug = false,
 	sound = {},
 	gfx = {},
@@ -18,9 +18,18 @@ function game.check_collision(x1, y1, w1, h1, x2, y2, w2, h2)
 			y2 < y1+h1
 end
 
-function game.toggle_debug()
-	game.show_debug = not game.show_debug
-	game.debug = not game.debug
+function game.cycle_debug_level()
+	if game.debug_level == 'none' then
+		game.debug_level = 'debug'
+	elseif game.debug_level == 'debug' then
+		game.debug_level = 'info'
+	elseif game.debug_level == 'info' then
+		game.debug_level = 'none'
+	else
+		-- fall through
+		game.debug_level = 'none'
+	end
+	game.debug = game.debug_level == 'debug'
 end
 
 function game.toggle_pause()

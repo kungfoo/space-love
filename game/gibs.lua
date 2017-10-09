@@ -11,6 +11,7 @@ function GibsSystem:update(dt)
 
 		if not g:is_alive() then
 			self.gibs[g] = nil
+			g:destroy()
 		end
 	end
 end

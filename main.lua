@@ -62,7 +62,7 @@ function love.load()
 	world = World()
 
 	player = Player(bump)
-	enemies = Enemies()
+	enemies = Enemies(bump)
 	scoreboard = Scoreboard()
 	modifiers = Modifiers()
 
@@ -166,7 +166,7 @@ function draw_game()
 
 	scoreboard:draw()
 
-	if game.show_debug then
+	if game.debug_level == 'debug' or game.debug_level == 'info' then
 		local fps = love.timer.getFPS()
 		local mem = collectgarbage("count")
 		local stats = ("obj: %d, upd: %.2fms, drw: %.2fms, fps: %d, mem: %.2fMB, tex_mem: %.2f MB"):format(bump:countItems(), time_update, time_draw, fps, mem / 1024, love.graphics.getStats().texturememory / 1024 / 1024)
@@ -184,8 +184,8 @@ end
 
 function draw_with_camera()
 	camera:draw(draw_grid)
-	if game.show_debug then
-		-- camera:draw(draw_bump_debug)
+	if game.debug_level == 'info' then
+		camera:draw(draw_bump_debug)
 	end
 
 	camera:draw(draw_objects)
@@ -229,7 +229,10 @@ end
 
 function love.keypressed(k)
 	if k == "escape" then love.event.quit() end
-	if k == "tab" then game.toggle_debug() end
+	if k == "tab" then
+		game.cycle_debug_level()
+		print(string.format("Debug level is now: %s", game.debug_level))
+	end
 	if k == "delete" then collectgarbage("collect") end
 	if k == "pause" then game.toggle_pause() end
 	if k == "r" then love.load() end
