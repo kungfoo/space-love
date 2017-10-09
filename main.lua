@@ -62,7 +62,7 @@ function love.load()
 	world = World()
 
 	player = Player(bump)
-	enemies = Enemies(bump)
+	enemies = Enemies()
 	scoreboard = Scoreboard()
 	modifiers = Modifiers()
 
@@ -105,9 +105,16 @@ end
 
 function update_objects(dt)
 	local t1 = love.timer.getTime()
+
+	-- TODO: figure out if I can get away with skipping lots of the updates
+	-- local visible_items, len = bump:queryRect(get_visible_world_bounds())
+	-- for i=1,len do
+	-- 	visible_items[i]:update(dt)
+	-- end
 	for i, object in ipairs(updateables) do
 		object:update(dt)
 	end
+	
 	local t2 = love.timer.getTime()
 
 	time_update = (t2-t1) * 1000
@@ -178,34 +185,42 @@ end
 function draw_with_camera()
 	camera:draw(draw_grid)
 	if game.show_debug then
-		camera:draw(draw_bump_debug)
+		-- camera:draw(draw_bump_debug)
 	end
 
 	camera:draw(draw_objects)
 end
 
 function draw_grid()
-
 	local step = 100
 	local x = step
 	local y = step
 
-	love.graphics.setColor(game.colors.hsl(212, 100, 22))
+	love.graphics.setColor(game.colors.hsl(212, 100, 22, 64))
+
+	local left, top, right, bottom = get_visible_world_bounds()
+
 	while y < world.height do
-		love.graphics.line(0, y, world.width, y)
+		love.graphics.line(left, y, right, y)
 		y = y + step
 	end
 	while x < world.width do
-		love.graphics.line(x, 0, x, world.height)
+		love.graphics.line(x, top, x, bottom)
 		x = x + step
 	end
 end
 
 function draw_objects()
-	-- TODO: use bump to only draw what is visible.
-	for i, object in ipairs(drawables) do
-		object:draw()
+	local visible_items, len = bump:queryRect(get_visible_world_bounds())
+	for i=1, len do
+		visible_items[i]:draw()
 	end
+end
+
+function get_visible_world_bounds()
+	local left, top = camera:worldCoords(0,0)
+	local right, bottom = camera:worldCoords(screen_width, screen_height)
+	return left, top, right, bottom
 end
 
 function draw_bump_debug()
