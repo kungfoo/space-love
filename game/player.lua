@@ -81,6 +81,10 @@ function Player:filter(other)
 	local type = other.type
 	if type == 'enemy' then
 		return 'touch'
+	elseif type == 'modifier' then
+		return 'cross'
+	else
+		return nil
 	end
 end
 
@@ -123,7 +127,11 @@ end
 
 function Player:draw()
 	love.graphics.setColor(255, 255, 255)
-	love.graphics.circle("fill", self.position.x, self.position.y, self.radius)
+	love.graphics.circle("fill", self.position.x, self.position.y, self.radius, 20)
+
+	if game.debug_level == 'info' then
+		game.draw_collision_box(self)
+	end
 
 	if self.r_stick:len() > 0 then
 		local aimpoint = self.position + self.r_stick * 200

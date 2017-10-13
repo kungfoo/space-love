@@ -20,7 +20,11 @@ Bullet = Class {
 	max_ttl = 5
 }
 
-Bullet.Gibs = Class {}
+Bullet.Gibs = Class {
+	type = 'plasma-gibs',
+	__includes = GameObject
+}
+
 Bullet.Gibs.Particle = Class {
 	min_ttl = 0.4,
 	max_ttl = 0.8,
@@ -78,7 +82,7 @@ function Bullet:init(bump, velocity, position)
 	self.hue = math.random(self.hue_start, self.hue_end)
 end
 
-function Bullet:filter(other)
+function Bullet.filter(item, other)
 	local type = other.type
 	if other.type == Enemy.type then
 		return 'touch'
@@ -90,9 +94,8 @@ function Bullet:draw()
 	lg.setColor(game.colors.hsl(self.hue, 100, 50))
 	lg.circle("fill", self.position.x, self.position.y, self.radius)
 
-	if game.show_debug then
-		lg.setColor(180, 0, 0, 128)
-		lg.rectangle("line", self.position.x - self.radius, self.position.y - self.radius, self.radius*2, self.radius*2)
+	if game.debug_level == 'info' then
+		game.draw_collision_box(self)
 	end
 end
 
@@ -100,7 +103,7 @@ function Bullet:update(dt)
 	local future_position = self.position + self.velocity * dt
 	local left, top = future_position.x - self.radius, future_position.y - self.radius
 	
-	local next_left, next_top, collisions, len = self.bump:move(self, left, top, self.filter)
+	local next_left, next_top, collisions, len = self.bump:move(self, left, top, Bullet.filter)
 	for i=1,len do
 		Signal.emit("collision", self, collisions[i].other)
 	end
@@ -117,8 +120,8 @@ end
 
 function Bullet.Gibs:init(position)
 	local ttl = math.random(Bullet.Gibs.Particle.min_ttl, Bullet.Gibs.Particle.max_ttl)
-	bump:add(self, position.x, position.y, 1, 1)
 	self.particles = self:create_particles(position.x, position.y, ttl)
+	GameObject.init(self, bump, position.x, position.y, 1, 1)
 end
 
 function Bullet.Gibs:create_particles(x, y, ttl)
@@ -146,16 +149,10 @@ function Bullet.Gibs:is_alive()
 	return self.particles[1].ttl_timer > 0
 end
 
-function Bullet.Gibs:destroy()
-	bump:remove(self)
-end
-
 function Bullet.Gibs.Particle:init(x, y, ttl)
 	self.position = Vector(x,y)
 	self.ttl, self.ttl_timer = ttl, ttl
 	self.hue = math.random(Bullet.hue_start, Bullet.hue_end)
-	
-	bump:add(self, self.position.x, self.position.y, 5, 5)
 	self.velocity = Vector(math.random(-self.initial_speed, self.initial_speed), math.random(-self.initial_speed, self.initial_speed))
 end
 
@@ -168,7 +165,6 @@ end
 function Bullet.Gibs.Particle:update(dt)
 	self.ttl_timer = self.ttl_timer - 2 * dt
 	self.position = self.position + dt * self.velocity
-	bump:move(self, self.position.x, self.position.y, nil)
 	self.velocity = self.velocity + (dt * -self.velocity)
 end
 

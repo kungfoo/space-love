@@ -1,6 +1,7 @@
 
 Enemies.Gibs = Class {
-	__includes = GameObject
+	__includes = GameObject,
+	type = 'enemy-gibs'
 }
 
 Enemies.Gibs.Particle = Class {

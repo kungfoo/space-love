@@ -22,10 +22,12 @@ function Enemy:init(bump, position)
 	self.velocity = Vector(0, 0)
 end
 
-function Enemy.filter(other)
+function Enemy.filter(item, other)
 	local type = other.type
 	if type == Enemy.type then
 		return 'bounce'
+	else
+		return nil
 	end
 end
 
@@ -40,6 +42,10 @@ end
 function Enemy:draw()
 	love.graphics.setColor(self:color())
 	love.graphics.rectangle("fill", self.position.x, self.position.y, self.width, self.height)
+
+	if game.debug_level == 'info' then
+		game.draw_collision_box(self)
+	end
 end
 
 function Enemy:color()

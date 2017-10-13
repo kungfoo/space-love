@@ -16,6 +16,11 @@ function CollisionResolver:resolve_collision(a, b)
 			Signal.emit("enemy-killed", b.position)
 			enemies:remove(b)
 		end
+
+		if b.type == 'modifier' then
+			player:pickup(b)
+			modifiers:remove(b)
+		end
 	end
 
 	if a.type == 'bullet' and b.type == 'enemy' then

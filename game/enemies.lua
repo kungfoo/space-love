@@ -34,9 +34,9 @@ function Enemies:update(dt)
 end
 
 function Enemies:draw()
-	for enemy, _ in pairs(self.enemies) do
-		enemy:draw()
-	end
+	-- for enemy, _ in pairs(self.enemies) do
+	-- 	enemy:draw()
+	-- end
 end
 
 function Enemies:remove(enemy)

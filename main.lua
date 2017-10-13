@@ -74,7 +74,6 @@ function love.load()
 	camera = Camera(player.position.x, player.position.y, Camera.smooth.damped(3))
 	camera:zoomTo(scale)
 
-	drawables = { enemies, modifiers, gibs, bullets, player }
 	updateables = { enemies, gibs, bullets, player }
 end
 

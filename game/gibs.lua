@@ -1,5 +1,6 @@
 
-GibsSystem = Class {}
+GibsSystem = Class {
+}
 
 function GibsSystem:init()
 	self.gibs = {}
@@ -17,9 +18,9 @@ function GibsSystem:update(dt)
 end
 
 function GibsSystem:draw()
-	for g, _ in pairs(self.gibs) do
-		g:draw()
-	end
+	-- for g, _ in pairs(self.gibs) do
+	-- 	g:draw()
+	-- end
 end
 
 function GibsSystem:insert(gibs)

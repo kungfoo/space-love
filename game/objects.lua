@@ -1,6 +1,7 @@
 -- base class for all game objects
 
 GameObject = Class {
+	type = 'game_object'
 }
 
 function GameObject:init(bump, left, top, width, height)
@@ -11,7 +12,7 @@ function GameObject:init(bump, left, top, width, height)
 end
 
 function GameObject:destroy()
-	if game.debug then
+	if game.debug_level == 'info' then
 		print(string.format("%s:%s created at %s has been destroyed", self.type, self.uuid, self.created_at))
 	end
 	self.bump:remove(self)
