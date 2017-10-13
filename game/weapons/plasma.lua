@@ -117,6 +117,7 @@ end
 
 function Bullet.Gibs:init(position)
 	local ttl = math.random(Bullet.Gibs.Particle.min_ttl, Bullet.Gibs.Particle.max_ttl)
+	bump:add(self, position.x, position.y, 1, 1)
 	self.particles = self:create_particles(position.x, position.y, ttl)
 end
 
@@ -128,10 +129,17 @@ function Bullet.Gibs:create_particles(x, y, ttl)
 	return p
 end
 
+function Bullet.Gibs:draw()
+	for _, particle in ipairs(self.particles) do
+		particle:draw()
+	end
+end
+
 function Bullet.Gibs:update(dt)
 	for _, particle in ipairs(self.particles) do
 		particle:update(dt)
 	end
+	
 end
 
 function Bullet.Gibs:is_alive()
@@ -139,9 +147,7 @@ function Bullet.Gibs:is_alive()
 end
 
 function Bullet.Gibs:destroy()
-	for _, particle in ipairs(self.particles) do
-		bump:remove(particle)
-	end
+	bump:remove(self)
 end
 
 function Bullet.Gibs.Particle:init(x, y, ttl)

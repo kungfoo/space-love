@@ -1,5 +1,8 @@
 
-Enemies.Gibs = Class { }
+Enemies.Gibs = Class {
+	__includes = GameObject
+}
+
 Enemies.Gibs.Particle = Class {
 	min_ttl = 2,
 	max_ttl = 4,
@@ -8,6 +11,7 @@ Enemies.Gibs.Particle = Class {
 
 function Enemies.Gibs:init(x, y)
 	local ttl = math.random(Enemies.Gibs.Particle.min_ttl, Enemies.Gibs.Particle.max_ttl)
+	GameObject.init(self, bump, x, y, 1, 1)
 	self.particles = self:create_particles(x, y, ttl)
 end
 
@@ -31,20 +35,19 @@ function Enemies.Gibs:update(dt)
 	end
 end
 
-function Enemies.Gibs:is_alive()
-	return self.particles[1].ttl_timer > 0
+function Enemies.Gibs:draw()
+	for _, particle in ipairs(self.particles) do
+		particle:draw()
+	end
 end
 
-function Enemies.Gibs:destroy()
-	for _, particle in ipairs(self.particles) do
-		bump:remove(particle)
-	end
+function Enemies.Gibs:is_alive()
+	return self.particles[1].ttl_timer > 0
 end
 
 function Enemies.Gibs.Particle:init(x, y, ttl, speed)
 	self.ttl, self.ttl_timer = ttl, ttl
 	self.position = Vector(x,y)
-	bump:add(self, self.position.x, self.position.y, 5, 5) -- size is not really important here...
 	self.velocity = Vector(math.random()-0.5, math.random()-0.5) * speed
 	self.hue = math.random(5, 50)
 end
@@ -57,8 +60,6 @@ end
 
 function Enemies.Gibs.Particle:update(dt)
 	self.position = self.position + dt * self.velocity
-	bump:move(self, self.position.x, self.position.y, nil) -- don't collide with anything
-
 	self.ttl_timer = self.ttl_timer - 2 * dt
 	-- slow down
 	self.velocity = self.velocity + (dt * -self.velocity)
