@@ -1,17 +1,12 @@
 
 BulletSystem = Class {}
 
-function BulletSystem:init()
+function BulletSystem:init(bump)
 	self.bullets = {}
 end
 
 function BulletSystem:insert(bullet)
-	self.bullets[bullet] = true
-end
-
-function BulletSystem:remove(bullet)
-	HC.remove(bullet.hc_object)
-	self.bullets[bullet] = nil
+	self.bullets[bullet] = bullet
 end
 
 function BulletSystem:update(dt)
@@ -23,17 +18,8 @@ function BulletSystem:update(dt)
 	end	
 end
 
-function BulletSystem:draw()
-	for b, _ in pairs(self.bullets) do
-		b:draw()
-	end
+function BulletSystem:remove(bullet)
+	self.bullets[bullet] = nil
+	bullet:destroy()
 end
 
-function BulletSystem:check_collisions()
-	for b, _ in pairs(self.bullets) do
-		local physics_collisions = CollisionLayers.filter(HC.collisions(b.hc_object), CollisionLayers.Physics)
-		for other, separating_vector in pairs(physics_collisions) do
-			Signal.emit("collision", b, other.game_object, separating_vector)
-		end
-	end
-end

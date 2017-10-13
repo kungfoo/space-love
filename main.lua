@@ -10,7 +10,9 @@ Signal = require("lib.hump.signal")
 Class = require("lib.hump.class")
 Camera = require("lib.hump.camera")
 Vector = require("lib.hump.vector")
-HC = require("lib.HC")
+
+Bump = require("lib.bump.bump")
+bump_debug = require("lib.bump_debug")
 
 inspect = require("lib.inspect.inspect")
 tick = require("lib.tick.tick")
@@ -34,6 +36,7 @@ local scale = math.min(scale_x, scale_y)
 print("display scale is: "..scale)
 
 function love.load()
+	bump = Bump.newWorld(64)
 	Signal.clearPattern(".*")
 
 	-- setup fixed timestepping
@@ -58,20 +61,19 @@ function love.load()
 
 	world = World()
 
-	player = Player()
-	enemies = Enemies()
+	player = Player(bump)
+	enemies = Enemies(bump)
 	scoreboard = Scoreboard()
 	modifiers = Modifiers()
 
 	gibs = GibsSystem()
-	bullets = BulletSystem()
+	bullets = BulletSystem(bump)
 
 	collisionResolver = CollisionResolver()
 
-	camera = Camera(player.position.x, player.position.y)
+	camera = Camera(player.position.x, player.position.y, Camera.smooth.damped(3))
 	camera:zoomTo(scale)
 
-	drawables = { enemies, modifiers, gibs, bullets, player }
 	updateables = { enemies, gibs, bullets, player }
 end
 
@@ -87,13 +89,14 @@ function love.update(dt)
 	scoreboard:update(dt)
 
 	if not game.over and not game.paused then
-		
+
 		update_objects(dt)
+		
+		if player:is_dead() then
+			game.over = true
+		end
 
-		modifiers:apply(player)
-		check_collisions()
-
-		camera:lockPosition(player.position.x, player.position.y, Camera.smooth.damped(3))
+		camera:lockPosition(player.position.x, player.position.y)
 	else
 		-- update nothing
 	end
@@ -101,26 +104,19 @@ end
 
 function update_objects(dt)
 	local t1 = love.timer.getTime()
+
+	-- TODO: figure out if I can get away with skipping lots of the updates
+	-- local visible_items, len = bump:queryRect(get_visible_world_bounds())
+	-- for i=1,len do
+	-- 	visible_items[i]:update(dt)
+	-- end
 	for i, object in ipairs(updateables) do
 		object:update(dt)
 	end
+	
 	local t2 = love.timer.getTime()
 
 	time_update = (t2-t1) * 1000
-end
-
-function check_collisions()
-	local t1 = love.timer.getTime()
-
-	bullets:check_collisions()
-	player:check_collisions()
-
-	if player:is_dead() then
-		game.over = true
-	end
-	
-	local t2 = love.timer.getTime()
-	time_collisions = (t2-t1) * 1000
 end
 
 function love.focus(focused)
@@ -165,15 +161,14 @@ end
 
 function draw_game()
 	local t1 = love.timer.getTime()
-	camera:draw(draw_grid)
-	camera:draw(draw_objects)
+	draw_with_camera()
 
 	scoreboard:draw()
 
-	if game.show_debug then
+	if game.debug_level == 'debug' or game.debug_level == 'info' then
 		local fps = love.timer.getFPS()
 		local mem = collectgarbage("count")
-		local stats = ("cols: %.2fms, upd: %.2fms, drw: %.2fms, fps: %d, mem: %.2fMB, tex_mem: %.2f MB"):format(time_collisions, time_update, time_draw, fps, mem / 1024, love.graphics.getStats().texturememory / 1024 / 1024)
+		local stats = ("obj: %d, upd: %.2fms, drw: %.2fms, fps: %d, mem: %.2fMB, tex_mem: %.2f MB"):format(bump:countItems(), time_update, time_draw, fps, mem / 1024, love.graphics.getStats().texturememory / 1024 / 1024)
 
 		love.graphics.setFont(Font[15])
 		love.graphics.setColor(255, 255, 255)
@@ -186,34 +181,66 @@ function draw_game()
 	time_draw = (t2 - t1) * 1000
 end
 
-function draw_grid()
+function draw_with_camera()
+	camera:draw(draw_grid)
+	if game.debug_level == 'info' then
+		camera:draw(draw_bump_debug)
+	end
 
+	camera:draw(draw_objects)
+end
+
+function draw_grid()
 	local step = 100
 	local x = step
 	local y = step
 
-	love.graphics.setColor(game.colors.hsl(212, 100, 22))
+	love.graphics.setColor(game.colors.hsl(212, 100, 22, 64))
+
+	local left, top, right, bottom = get_visible_world_bounds()
+
 	while y < world.height do
-		love.graphics.line(0, y, world.width, y)
+		love.graphics.line(left, y, right, y)
 		y = y + step
 	end
 	while x < world.width do
-		love.graphics.line(x, 0, x, world.height)
+		love.graphics.line(x, top, x, bottom)
 		x = x + step
 	end
 end
 
 function draw_objects()
-	for i, object in ipairs(drawables) do
-		object:draw()
+	local visible_items, len = bump:queryRect(get_visible_world_bounds())
+	for i=1, len do
+		visible_items[i]:draw()
 	end
+end
+
+function get_visible_world_bounds()
+	local left, top = camera:worldCoords(0,0)
+	local right, bottom = camera:worldCoords(screen_width, screen_height)
+	return left, top, right, bottom
+end
+
+function draw_bump_debug()
+	bump_debug.draw(bump)
 end
 
 function love.keypressed(k)
 	if k == "escape" then love.event.quit() end
-	if k == "tab" then game.toggle_debug() end
+	if k == "tab" then
+		game.cycle_debug_level()
+		print(string.format("Debug level is now: %s", game.debug_level))
+	end
 	if k == "delete" then collectgarbage("collect") end
 	if k == "pause" then game.toggle_pause() end
 	if k == "r" then love.load() end
+	if k == "f1" then
+		if tick.timescale == 1 then
+			tick.timescale = 0.5
+		else
+			tick.timescale = 1
+		end
+	end
 end
 

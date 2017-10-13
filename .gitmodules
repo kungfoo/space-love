@@ -10,12 +10,12 @@
 [submodule "lib/inspect"]
 	path = lib/inspect
 	url = git@github.com:kikito/inspect.lua.git
-[submodule "lib/HC"]
-	path = lib/HC
-	url = git@github.com:vrld/HC.git
 [submodule "lib/lovebird"]
 	path = lib/lovebird
 	url = git@github.com:rxi/lovebird.git
 [submodule "lib/tick"]
 	path = lib/tick
 	url = git@github.com:bjornbytes/tick.git
+[submodule "lib/bump"]
+	path = lib/bump
+	url = git@github.com:kikito/bump.lua.git

@@ -3,18 +3,23 @@ CollisionResolver = Class {
 }
 
 function CollisionResolver:init()
-	Signal.register("collision", function(a, b, separating_vector)
-		self:resolve_collision(a, b, separating_vector) 
+	Signal.register("collision", function(a, b)
+		self:resolve_collision(a, b) 
 	end)
 end
 
-function CollisionResolver:resolve_collision(a, b, separating_vector)
+function CollisionResolver:resolve_collision(a, b)
 	if a.type == 'player' then
 		if b.type == 'enemy' then
 			print("Hit enemy with player")
 			player:hit()
 			Signal.emit("enemy-killed", b.position)
 			enemies:remove(b)
+		end
+
+		if b.type == 'modifier' then
+			player:pickup(b)
+			modifiers:remove(b)
 		end
 	end
 

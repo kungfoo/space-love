@@ -1,5 +1,6 @@
 Player = Class {
 	type = 'player',
+	__includes = GameObject,
 	max_health = 500,
 	max_velocity = 400,
 	acceleration = 1000,
@@ -7,12 +8,12 @@ Player = Class {
 	radius = 10
 }
 
-function Player:init()
+function Player:init(bump)
 	-- initial position
-
 	self.position = Vector(math.random(200, world.width - 200), math.random(200, world.height - 200))
-	self.hc_object = HC.circle(self.position.x, self.position.y, self.radius)
-	self.hc_object.game_object = self
+
+	local left, top, width, height = self.position.x - Player.radius, self.position.y - Player.radius, 2 * Player.radius, 2 * Player.radius
+	GameObject.init(self, bump, left, top, width, height)
 
 	self.velocity = Vector(0,0)
 	
@@ -28,7 +29,7 @@ function Player:init()
 	self.r_stick = Vector(0,0)
 
 	-- start out with plasma gun
-	self.weapon = Weapons.Plasma()
+	self.weapon = Weapons.Plasma(bump)
 end
 
 function Player:move(dt)
@@ -57,18 +58,33 @@ function Player:move(dt)
 		self.velocity = self.velocity * math.pow(self.friction, dt)
 	end
 
-	-- this will yield problems, when both keyboard and gamepad are used.
---	self.x = game.math.clamp(self.x + self.stickx * (self.acceleration * dt), 0, world.width)
---	self.y = game.math.clamp(self.y + self.sticky * (self.acceleration * dt), 0, world.height)
-
 	self.velocity:trimInplace(self.max_velocity)
 
-	self.position = self.position + self.velocity * dt
-	self.hc_object:moveTo(self.position:unpack())
+	local future_position = self.position + self.velocity * dt
+	
+	-- TODO: deal with filtered collisions
+	local next_left, next_top, collisions, len = self.bump:move(self, future_position.x - self.radius, future_position.y - self.radius, self.filter)
+	for i=1,len do
+		local other = collisions[i].other
+		Signal.emit("collision", self, other)
+	end
+
+	self.position = Vector(next_left + self.radius, next_top + self.radius)
 
 	local fire = love.keyboard.isDown('space') or self.firing
 	if fire and self.r_stick:len() > 0.25 then
 		self.weapon:trigger(self.velocity, self.position, self.r_stick)
+	end
+end
+
+function Player:filter(other)
+	local type = other.type
+	if type == 'enemy' then
+		return 'touch'
+	elseif type == 'modifier' then
+		return 'cross'
+	else
+		return nil
 	end
 end
 
@@ -111,7 +127,11 @@ end
 
 function Player:draw()
 	love.graphics.setColor(255, 255, 255)
-	love.graphics.circle("fill", self.position.x, self.position.y, self.radius)
+	love.graphics.circle("fill", self.position.x, self.position.y, self.radius, 20)
+
+	if game.debug_level == 'info' then
+		game.draw_collision_box(self)
+	end
 
 	if self.r_stick:len() > 0 then
 		local aimpoint = self.position + self.r_stick * 200
@@ -131,19 +151,14 @@ function Player:update(dt)
 	self:move(dt)
 end
 
-function Player:check_collisions()
-	local collisions = HC.collisions(self.hc_object)
-	local physics_collisions = CollisionLayers.filter(collisions, CollisionLayers.Physics)
-
-	for other, separating_vector in pairs(physics_collisions) do
-		Signal.emit("collision", self, other.game_object, separating_vector)
-	end
-end
-
 function Player:hit()
 	self.health = self.health - 100
 	Signal.emit("player-hit")
 end
+
+-- function Player:destroy()
+-- 	-- TODO: remove from bump world
+-- end
 
 function Player:is_dead()
 	return self.health <= 0
