@@ -43,9 +43,9 @@ function love.load()
 	tick.framerate = 60
 	tick.rate = 0.016666
   	
-	local crosshair = Image['crosshair.png']
-	local cursor = love.mouse.newCursor(crosshair:getData(), crosshair:getWidth()/2, crosshair:getHeight()/2)
-	love.mouse.setCursor(cursor)
+	-- local crosshair = Image['crosshair.png']
+	-- local cursor = love.mouse.newCursor(crosshair:getData(), crosshair:getWidth()/2, crosshair:getHeight()/2)
+	-- love.mouse.setCursor(cursor)
 
 	game.over = false
 	game.paused = false
