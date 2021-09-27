@@ -15,7 +15,7 @@ function game.colors.hsv(h, s, v)
     elseif h < 5 then r,g,b = x,0,c
     else              r,g,b = c,0,x
     
-    end return (r+m)*255,(g+m)*255,(b+m)*255
+    end return (r+m)*1,(g+m)*1,(b+m)*1
 end
 
 -- convert hsl values to rgb
@@ -34,6 +34,6 @@ function game.colors.hsl(h, s, l, a)
 	elseif h < 5 then r,g,b = x,0,c
 	else              r,g,b = c,0,x
 	
-	end return (r+m)*255,(g+m)*255,(b+m)*255,a
+	end return (r+m)*1,(g+m)*1,(b+m)*1,a
 end
 
